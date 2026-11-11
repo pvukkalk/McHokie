@@ -51,13 +51,13 @@ public class DriveThrough
         }
 
         // Check if the customer has a valid car number
-        if(customer.getCarNumber() == null || customer.getCarNumber().isEmpty())
+        if(Integer.valueOf(customer.getCarNumber()) == null || Integer.valueOf(customer.getCarNumber()) <= 0)
         {
             throw new IllegalArgumentException("Customer must have a valid car number.");
         }
 
         // Check if the order is QUEUED
-        if(customer.getOrderStatus() != OrderStatus.QUEUED)
+        if(customer.getStatus() != OrderStatus.QUEUED)
         {
             throw new IllegalStateException("Customer's order must be QUEUED.");
         }
@@ -75,7 +75,7 @@ public class DriveThrough
      */
     public void remove(){
         //Has no effect if no registered customer has a completed order.
-        if(queue.isEmpty() || queue.peek().getOrderStatus()!=OrderStatus.COMPLETED){
+        if(queue.isEmpty() || queue.peek().getStatus()!=OrderStatus.COMPLETED){
             return;
         }
         
@@ -104,10 +104,23 @@ public class DriveThrough
     }
 
     /**
-     * Notifies all registered observers of a change in the drive-through queue.
+     * Adds an observer to the list of observers for the drive-through.
+     * @param observer
      */
-    public void update(){
+    public void addObserver(Observer observer) {
+        if (observer == null) {
+            throw new IllegalArgumentException("Observer cannot be null.");
+        }
+        observers.add(observer);
+    }
 
+    /**
+     * Notifies all registered observers of changes to the queue.
+     */
+    public void update() {
+        for (Observer observer : observers) {
+            observer.update(null, null); //subsitute with actual method to notify observers
+        }
     }
 
 }
