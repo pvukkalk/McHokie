@@ -34,11 +34,11 @@ public class OrderList implements Observer
      */
     public void enqueue(Order order){
         //Throws IllegalArgumentException if the order is null or not in DRAFT status.
-        if(order == null || order.getOrderStatus() != OrderStatus.DRAFT){
+        if(order == null || order.getStatus() != OrderStatus.DRAFT){
             throw new IllegalArgumentException("Order must be non-null and in DRAFT status");
         }
         //Changes status to QUEUED, adds it to the back of the queue, and notifies observers.
-        order.setOrderStatus(OrderStatus.QUEUED);
+        order.updateStatus(OrderStatus.QUEUED);
         queue.addLast(order);
         notifyObservers(order);
 
@@ -57,7 +57,7 @@ public class OrderList implements Observer
         Order order = queue.removeFirst();
 
         //Changes status to COMPLETED
-        order.setOrderStatus(OrderStatus.COMPLETED);
+        order.updateStatus(OrderStatus.COMPLETED);
 
         //Notifies observers
         notifyObservers(order);
@@ -120,13 +120,6 @@ public class OrderList implements Observer
             return new ArrayList<Order>();
         }
         return new ArrayList<Order>(queue);
-
-    }
-
-    /** 
-     * Receives a change notification from InStore or DriveThrough and forwards it to registered observers. It does not change the queue or order statuses.
-    */
-    public void update(){
 
     }
 
