@@ -10,5 +10,10 @@ package restaurant;
  */
 public interface Observer
 {
-
+    /**
+     * To be implemented
+     * @param o 
+     * @param arg 
+     */
+    void update(Observable o, Object arg);
 }
