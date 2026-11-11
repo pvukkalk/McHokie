@@ -203,12 +203,14 @@ public class Display implements Observer {
 
         System.out.println(message);
     }
-
     /**
-     * Marks the display for refreshing.
+     * Marks the display for refreshing after a model change.
+     *
+     * @param o the model that sent the notification
+     * @param arg additional information about the change
      */
     @Override
-    public void update() {
+    public void update(Observable o, Object arg) {
         refreshNeeded = true;
     }
 
