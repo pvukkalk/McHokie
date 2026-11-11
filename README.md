@@ -18,9 +18,36 @@
 ## Attribution 
 | File / Class | Team Member(s) | Contribution / Role |
 | :--- | :--- | :--- |
-| **`Customer.java** |  |  |
-| **`Display.java** |  |  |
-| **`DriveThrough.java** |  |  |
+| **Customer.java** |  |  |
+| **Display.java** |  |  |
+| **DriveThrough.java** |  |  |
+| **DriveThroughCustomer.java** |  |  |
+| **FoodItem.java** |  |  |
+| **HandleInput.java** |  |  |
+| **InStore.java** |  |  |
+| **Inventory.java** |  |  |
+| **Main.java** |  |  |
+| **Menu.java** |  |  |
+| **Observer.java** |  |  |
+| **Order.java** |  |  |
+| **OrderList.java** |  |  |
+| **OrderStatus.java** |  |  |
+| **Observerable.java** |  |  |
+
+---
+## GenAI Note
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ---
