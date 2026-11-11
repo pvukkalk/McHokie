@@ -2,7 +2,8 @@
 ---
 ## Reflection
 ### What changed from your specification?
-- In order to notify the observer objects of any changes, DriveThrough, OrderList, InStore, Menu and Inventory classes were changed to implement the Observable interface. 
+- Which class implemented what interfaces was not explicitly stated in our spec. We noted, in order to notify the observer objects of any changes, DriveThrough, OrderList, InStore, Menu and Inventory classes were changed to implement the Observable interface.
+- On the same note, the following classes implements Observer interface: Display, Inventory, OrderList. The Inventory and OrderList classes implement both Observer and Observable.
 ### Did the model really stand alone? 
 ### What happened to your unknowns?
 ### What doesn't work yet? 
