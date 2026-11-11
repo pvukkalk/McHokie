@@ -7,7 +7,7 @@ import java.util.List;
 // -------------------------------------------------------------------------
 /**
  *  Represents the drive through and the line of cars. 
- *  Stores the driveThroughCustomer objects
+ * 
  * 
  *  @author adambergmaier
  *  @version Nov 10, 2026
@@ -51,7 +51,7 @@ public class DriveThrough implements Observable
         }
 
         // Check if the customer has a valid car number
-        if(Integer.valueOf(customer.getCarNumber()) == null || Integer.valueOf(customer.getCarNumber()) <= 0)
+        if(customer.getCarNumber() < 0)
         {
             throw new IllegalArgumentException("Customer must have a valid car number.");
         }
@@ -74,15 +74,14 @@ public class DriveThrough implements Observable
      * Removes the earliest customer from the queue whose order is COMPLETED and notifies observers of the change.   
      */
     public void remove(){
-        //Has no effect if no registered customer has a completed order.
-        if(queue.isEmpty() || queue.peek().getStatus()!=OrderStatus.COMPLETED){
+        for (DriveThroughCustomer customer : queue){
+            if (customer.getStatus() == OrderStatus.COMPLETED){
+            queue.remove(customer);
+            totalCars--;
+            update();
             return;
+            }  
         }
-        
-        // Removes the earliest registered customer whose order is COMPLETED, updates totalCars, and calls update().
-        queue.remove();
-        totalCars--;
-        update(); //subsitute with actual method to notify observers
     }
 
     /**
@@ -102,6 +101,7 @@ public class DriveThrough implements Observable
     public int getTotalCars() {
         return totalCars;
     }
+
 
     /**
      * Adds an observer to the list of observers for the drive-through.
@@ -132,4 +132,3 @@ public class DriveThrough implements Observable
     }
 
 }
-
