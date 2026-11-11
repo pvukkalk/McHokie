@@ -4,40 +4,68 @@ import java.util.ArrayList;
 
 // -------------------------------------------------------------------------
 /**
- *  Write a one-sentence summary of your class here.
- *  Follow it with additional details about its purpose, what abstraction
- *  it represents, and how to use it.
+ * Write a one-sentence summary of your class here. Follow it with additional
+ * details about its purpose, what abstraction it represents, and how to use it.
  * 
- *  @author adambergmaier
- *  @version Nov 10, 2026
+ * @author adambergmaier
+ * @version Nov 10, 2026
  */
-public class Inventory implements Observable
+public class Inventory
+    implements Observable
 {
-    //~ Fields ................................................................
+    // ~ Fields ................................................................
     ArrayList<FoodItem> stock;
     ArrayList<Observer> observers;
-    //~ Constructors ..........................................................
-    public Inventory() {
+
+    // ~ Constructors ..........................................................
+    public Inventory()
+    {
         stock = new ArrayList<FoodItem>();
         observers = new ArrayList<Observer>();
     }
-    //~Public  Methods ........................................................
-    protected void notifyObservers(Object arg) {
-        for (Observer o : observers) {
+
+
+    // ~Public Methods ........................................................
+    protected void notifyObservers(Object arg)
+    {
+        for (Observer o : observers)
+        {
             o.update(this, arg);
         }
     }
+
+
     @Override
     public void addObserver(Observer o)
     {
         observers.add(o);
-        
     }
+
+
     @Override
     public void removeObserver(Observer o)
     {
         observers.remove(o);
-        
     }
     
+    public boolean outOfStock(FoodItem item) {
+        boolean result = false;
+        if (!stock.contains(item)) {
+            return result;
+        }
+        for (FoodItem foodItem : stock) {
+            if (foodItem.equals(item) && foodItem.getQuantity() > 0) {
+                result = true;
+                break;
+            }
+        }
+        return result;
+    }
+    
+    public void removeItem(FoodItem item) {
+        int i = stock.indexOf(item);
+        FoodItem temp = stock.get(i);
+        temp.decrementQuantity();
+    }
+
 }
