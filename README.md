@@ -20,17 +20,17 @@
 | :--- | :--- | :--- |
 | **Customer.java** |  |  |
 | **Display.java** |  |  |
-| **DriveThrough.java** | Preeti Vukkalkar | Wrote public methods and Observable interface methods. |
+| **DriveThrough.java** | Preeti Vukkalkar | Wrote fields, constructor, public methods and Observable interface methods. |
 | **DriveThroughCustomer.java** |  |  |
 | **FoodItem.java** |  |  |
 | **HandleInput.java** |  |  |
-| **InStore.java** | Preeti Vukkalkar | Wrote add(), remove(), getCustomers() and update() public methods |
+| **InStore.java** | Preeti Vukkalkar | Wrote fields, constructor and public methods. |
 | **Inventory.java** |  |  |
 | **Main.java** |  |  |
 | **Menu.java** |  |  |
 | **Observer.java** |  |  |
-| **Order.java** | Preeti Vukkalkar |  |
-| **OrderList.java** | Preeti Vukkalkar |  |
+| **Order.java** | Preeti Vukkalkar | Wrote fields, constructor and public methods. |
+| **OrderList.java** | Preeti Vukkalkar | Wrote fields, constructor, public methods, Observable and Observer interface methods. |
 | **OrderStatus.java** |  |  |
 | **Observerable.java** |  |  |
 
