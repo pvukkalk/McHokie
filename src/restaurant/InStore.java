@@ -13,7 +13,7 @@ import java.util.List;
  *  @author pvukkalk
  *  @version Nov 11, 2026
  */
-public class InStore
+public class InStore implements Observable
 {
     //~ Fields ................................................................
     private LinkedList<Customer> queue;
@@ -80,6 +80,24 @@ public class InStore
             observer.update(null, null); 
         }
     }
+    /**
+     * Adds an observer to the list of observers for the in-store queue.
+     * @param observer The observer to add.
+     */
+    public void addObserver(Observer observer) {
+        if (observer == null) {
+            throw new IllegalArgumentException("Observer cannot be null.");
+        }
 
+        observers.add(observer);
+    }
+
+    /**
+     * Removes an observer from the list of observers for the in-store queue.
+     * @param observer The observer to remove.
+     */
+    public void removeObserver(Observer observer) {
+        observers.remove(observer);
+    }
 
 }
