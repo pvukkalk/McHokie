@@ -6,9 +6,7 @@ import java.util.List;
 
 // -------------------------------------------------------------------------
 /**
- *  Write a one-sentence summary of your class here.
- *  Follow it with additional details about its purpose, what abstraction
- *  it represents, and how to use it.
+ *  Represents the line of walk-in customers
  * 
  *  @author adambergmaier
  *  @version Nov 10, 2026
@@ -42,7 +40,7 @@ public class InStore
         }
 
         //throws exception if customer is not in QUEUED order status
-        if(customer.getOrderStatus() != OrderStatus.QUEUED){
+        if(customer.getStatus() != OrderStatus.QUEUED){
             throw new IllegalArgumentException("Customer must have a QUEUED order to be added");
         }
         queue.addLast(customer);
@@ -54,7 +52,7 @@ public class InStore
      */
     public void remove(){
         //Has no effect if no registered customer has a completed order.
-        if(queue.isEmpty() || queue.peek().getOrderStatus()!=OrderStatus.COMPLETED){
+        if(queue.isEmpty() || queue.peek().getStatus()!=OrderStatus.COMPLETED){
             return;
         }
         queue.removeFirst();
@@ -85,3 +83,4 @@ public class InStore
 
 
 }
+
