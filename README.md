@@ -1,5 +1,5 @@
 # McHokie
----
+
 ## Reflection
 ### What changed from your specification?
 - Which class implemented what interfaces was not explicitly stated in our spec. We noted, in order to notify the observer objects of any changes, DriveThrough, OrderList, InStore, Menu and Inventory classes were changed to implement the Observable interface.
