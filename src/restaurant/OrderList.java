@@ -99,6 +99,11 @@ public class OrderList implements Observable
         return queue.size();
     }
 
+    /**
+     * Returns position of a order in the queue.
+     * @param order The order whose position is to be found.
+     * @return The position of the order in the queue, or -1 if the order is null or not in the queue.
+     */
     public int getPosition(Order order){
         //Return -1 if order is null or not in the queue
         if(order == null || !queue.contains(order)){
@@ -121,18 +126,31 @@ public class OrderList implements Observable
 
     }
 
+    /**
+     * Adds an observer to the list of observers for the order list.
+     * @param observer The observer to add.
+     */
+    @Override
     public void addObserver(Observer observer){
         if(observer !=null && !this.observers.contains(observer)){
             observers.add(observer);
         }
     }
 
+    /**
+     * Notifies all registered observers of a change in the order list.
+     * @param order The order that was added or removed.
+     */
     public void notifyObservers(Order order){
         for(Observer observer: observers){
             observer.update(this, order);
         }
     }
     
+    /**
+     * Removes an observer from the list of observers for the order list.
+     * @param observer The observer to remove.
+     */
     public void removeObserver(Observer observer){
         observers.remove(observer);
     }
