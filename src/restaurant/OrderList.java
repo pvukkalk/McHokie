@@ -15,7 +15,7 @@ import java.util.List;
  *  @author pvukkalk
  *  @version Nov 11, 2026
  */
-public class OrderList implements Observer
+public class OrderList implements Observable
 {
     //~ Fields ................................................................
     private LinkedList<Order> queue;
@@ -121,6 +121,22 @@ public class OrderList implements Observer
         }
         return new ArrayList<Order>(queue);
 
+    }
+
+    public void addObserver(Observer observer){
+        if(observer !=null && !this.observers.contains(observer)){
+            observers.add(observer);
+        }
+    }
+
+    public void notifyObservers(Order order){
+        for(Observer observer: observers){
+            observer.update(this, order);
+        }
+    }
+    
+    public void removeObserver(Observer observer){
+        observers.remove(observer);
     }
 
 }
