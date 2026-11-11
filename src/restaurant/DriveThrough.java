@@ -16,7 +16,7 @@ import java.util.List;
  *  @version Nov 11, 2026
  * 
  */
-public class DriveThrough
+public class DriveThrough implements Observable
 {
     //~ Fields ................................................................
     private LinkedList<DriveThroughCustomer> queue; //Holds drive through customers.
@@ -119,8 +119,16 @@ public class DriveThrough
      */
     public void update() {
         for (Observer observer : observers) {
-            observer.update(null, null); //subsitute with actual method to notify observers
+            observer.update(null, null); 
         }
+    }
+
+    /**
+     * Removes an observer from the list of observers for the drive-through.
+     * @param observer
+     */
+    public void removeObserver(Observer observer) {
+        observers.remove(observer);
     }
 
 }
