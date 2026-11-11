@@ -18,6 +18,10 @@
 ## Attribution 
 | File / Class | Team Member(s) | Contribution / Role |
 | :--- | :--- | :--- |
+| **`Customer.java** |  |  |
+| **`Display.java** |  |  |
+| **`DriveThrough.java** |  |  |
+
 
 ---
 ## GenAI Note
