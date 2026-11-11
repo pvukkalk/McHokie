@@ -2,6 +2,7 @@ package restaurant;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 // -------------------------------------------------------------------------
 /**
@@ -10,6 +11,7 @@ import java.util.LinkedList;
  * 
  *  @author adambergmaier
  *  @version Nov 10, 2026
+ * 
  *  @author pvukkalk
  *  @version Nov 11, 2026
  * 
@@ -18,14 +20,14 @@ public class DriveThrough
 {
     //~ Fields ................................................................
     private LinkedList<DriveThroughCustomer> queue; //Holds drive through customers.
-    private ArrayList<Oberver> observers; //Holds observers for the drive through.
+    private ArrayList<Observer> observers; //Holds observers for the drive through.
     private int totalCars; //Holds the total number of cars in queue
 
     //~ Constructors ..........................................................
     public DriveThrough()
     {
         queue = new LinkedList<DriveThroughCustomer>();
-        observers = new ArrayList<Oberver>();
+        observers = new ArrayList<Observer>();
         totalCars = 0;
     }
     //~Public  Methods ........................................................
@@ -65,22 +67,47 @@ public class DriveThrough
         totalCars++;
 
         // Notify observers of the change.
-        notifyObservers(); //subsitute with actual method to notify observers
+        update(); //subsitute with actual method to notify observers
     }
 
-     /**
+    /**
      * Removes the earliest customer from the queue whose order is COMPLETED and notifies observers of the change.   
      */
     public void remove(){
         //Has no effect if no registered customer has a completed order.
-        if(queue.isEmptu() || queue.peek().getOrderStatus()!=OrderStatus.COMPLETED){
+        if(queue.isEmpty() || queue.peek().getOrderStatus()!=OrderStatus.COMPLETED){
             return;
         }
         
         // Removes the earliest registered customer whose order is COMPLETED, updates totalCars, and calls update().
         queue.remove();
         totalCars--;
-        notifyObservers(); //subsitute with actual method to notify observers
+        update(); //subsitute with actual method to notify observers
     }
-}
 
+    /**
+     * Returns an unmodifiable snapshot of active drive-through customers in registration order.
+     * 
+     * @return A list of DriveThroughCustomer objects currently in the queue.
+     */
+    public List<DriveThroughCustomer> getCustomers() {
+        //Returns a copy
+        return new ArrayList<>(queue); 
+    }
+
+    /**
+     * Returns the total number of cars currently in the queue.
+     * @return The total number of cars in the queue.
+     */
+    public int getTotalCars() {
+        return totalCars;
+    }
+
+    /**
+     * Notifies all registered observers of a change in the drive-through queue.
+     */
+    public void update(){
+
+    }
+
+}
