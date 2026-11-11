@@ -2,7 +2,7 @@
 ---
 ## Reflection
 ### What changed from your specification?
-  In order to notify the observer objects of any changes, DriveThrough, OrderList, InStore, Menu and Inventory classes were changed to implement the Observable interface. 
+- In order to notify the observer objects of any changes, DriveThrough, OrderList, InStore, Menu and Inventory classes were changed to implement the Observable interface. 
 ### Did the model really stand alone? 
 ### What happened to your unknowns?
 ### What doesn't work yet? 
