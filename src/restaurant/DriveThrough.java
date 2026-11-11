@@ -67,5 +67,20 @@ public class DriveThrough
         // Notify observers of the change.
         notifyObservers(); //subsitute with actual method to notify observers
     }
+
+     /**
+     * Removes the earliest customer from the queue whose order is COMPLETED and notifies observers of the change.   
+     */
+    public void remove(){
+        //Has no effect if no registered customer has a completed order.
+        if(queue.isEmptu() || queue.peek().getOrderStatus()!=OrderStatus.COMPLETED){
+            return;
+        }
+        
+        // Removes the earliest registered customer whose order is COMPLETED, updates totalCars, and calls update().
+        queue.remove();
+        totalCars--;
+        notifyObservers(); //subsitute with actual method to notify observers
+    }
 }
 
