@@ -7,8 +7,10 @@ import java.util.Scanner;
  * 
  *  @author adambergmaier
  *  @version Nov 10, 2026
-*  @author Houyue Chen
+ *  @author Houyue Chen
  *  @version Nov 10, 2026
+ *  @author Houyue Chen
+ *  @version Nov 11, 2026
  */
 
 public class Display implements Observer {
