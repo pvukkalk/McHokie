@@ -11,7 +11,6 @@
 ### What happened to your unknowns?
 - We were able to succesfully implement Observable and Observer interface methods.
 - We implemented a refresh() method that cleanly refreshes all five model displays when needed.
-- Our new unknowns are to adapt menu switching based on time of day and priority queue sorting.
 ### What doesn't work yet? 
 - 
 
@@ -24,12 +23,14 @@
 ### Your change feature
 - Our one non-trivial that was not in our MVP was 
 ### Which stretch goals will you attempt?
+- To implement priority queue sorting, cancellation adapt menu switching based on dynamic time of day.
 ### What new tests will you need? 
+- We need to test the logic for switching order status.
 ### Who does what? 
 - Preeti will refine the queue classes.
-- Alex will
-- Adam will
-- Ayaan will 
+- Houyen will refine Display class
+- Adam will refine Main class
+- Ayaan will write additional test cases.
 
 ---
 ## Attribution 
