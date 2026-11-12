@@ -9,7 +9,9 @@
 ### Did the model really stand alone? 
 - Yes the model stands alone. The view uses the model class's ArrayList<Observer> observers to add itself as an observer and be notified when the model class makes any changes to its data. The view class only knows the data that the model class shares, and the view does not know what changes were made to the data or why, it only knows the current set of data. The update() method is used to communicate when specific data is modified.
 ### What happened to your unknowns?
+- We were able to succesfully implement Observable and Observer interface methods.
 ### What doesn't work yet? 
+- 
 
 ---
 ## Next Steps
@@ -22,6 +24,9 @@
 ### What new tests will you need? 
 ### Who does what? 
 - Preeti will refine the queue classes.
+- Alex will
+- Adam will
+- Ayaan will 
 
 ---
 ## Attribution 
@@ -31,19 +36,19 @@
 | **Display.java** | Houyue Chen | Implemented console output for the menu, orders, customers, and inventory; added Observer updates and refresh behavior. |
 | **DriveThrough.java** | Preeti Vukkalkar | Wrote fields, constructor, public methods and Observable interface methods. |
 | **DriveThroughCustomer.java** | Houyue Chen | Implemented Customer inheritance, car number validation, and restrictions on changing car numbers after submission. |
-| **FoodItem.java** |  |  |
-| **HandleInput.java** |  |  |
+| **FoodItem.java** | Adam Bergmaier |  |
+| **HandleInput.java** | Adam Bergmaier |  |
 | **InStore.java** | Preeti Vukkalkar | Wrote fields, constructor and public methods. |
-| **Inventory.java** |  |  |
-| **Main.java** |  |  |
-| **Menu.java** |  |  |
-| **Observer.java** |  |  |
+| **Inventory.java** | Adam Bergmaier |  |
+| **Main.java** | Adam Bergmaier |  |
+| **Menu.java** | Adam Bergmaier |  |
+| **Observer.java** | Adam Bergmaier |  |
 | **Order.java** | Preeti Vukkalkar | Wrote fields, constructor and public methods. |
 | **OrderList.java** | Preeti Vukkalkar | Wrote fields, constructor, public methods, Observable and Observer interface methods. |
 | **OrderStatus.java** | Houyue Chen | Defined the DRAFT, QUEUED, and COMPLETED order statuses. |
-| **Observerable.java** |  |  |
-
+| **Observerable.java** | Adam Bergmaier |  |
+| ** JUnit Testing **| Ayaan Deshmukh |  |
 ---
 ## GenAI Note
-
+- GenAI was used to identify complications in our files, which we referenced to correct any errors so that our application runs smoothly. 
 
