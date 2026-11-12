@@ -19,7 +19,7 @@ public class HandleInput
     private InStore inStore;
     private DriveThrough driveThrough;
     private Display display;
-    private Scanner scanner;
+    private Scanner input;
 
     // ~ Constructors ..........................................................
     /**
@@ -48,6 +48,9 @@ public class HandleInput
     }
     // ~Public Methods ........................................................
     public void run() {
-        
+        boolean running = true;
+        while (running) {
+            
+        }
     }
 }
