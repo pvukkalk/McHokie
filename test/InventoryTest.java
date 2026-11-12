@@ -16,10 +16,11 @@ public class InventoryTest
     private CountingObserver observer;
 
     /**
-     * Sets up an empty inventory with an observer and two items.
+     * Sets up fresh objects for every test.
      */
     public void setUp()
     {
+        // Inventory
         inventory = new Inventory();
         burger = new FoodItem("Burger", "Food", 7);
         fries = new FoodItem("Fries", "Food", 5);
@@ -27,6 +28,8 @@ public class InventoryTest
         inventory.addObserver(observer);
     }
 
+
+    // ~ Inventory .........................................................
 
     /**
      * Tests that an item not in the inventory counts as out of stock.
@@ -524,5 +527,51 @@ public class InventoryTest
             thrown = e;
         }
         assertTrue(thrown instanceof IllegalArgumentException);
+    }
+
+    // ----------------------------------------------------------
+    /**
+     * Test helper that counts how many times it has been notified.
+     */
+    private static class CountingObserver
+        implements Observer
+    {
+        private int count;
+        private Object lastArg;
+
+        /**
+         * Records one notification.
+         *
+         * @param arg
+         *            the object passed by the observable
+         */
+        @Override
+        public void update(Object arg)
+        {
+            count++;
+            lastArg = arg;
+        }
+
+
+        /**
+         * Returns the number of notifications received.
+         *
+         * @return the notification count
+         */
+        public int getCount()
+        {
+            return count;
+        }
+
+
+        /**
+         * Returns the argument from the most recent notification.
+         *
+         * @return the last argument, or null if never notified
+         */
+        public Object getLastArg()
+        {
+            return lastArg;
+        }
     }
 }
