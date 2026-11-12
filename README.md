@@ -51,7 +51,7 @@
 | **OrderList.java** | Preeti Vukkalkar/Alex Chen | Wrote fields, constructor, public methods, Observable and Observer interface methods. |
 | **OrderStatus.java** | Houyue Chen | Defined the DRAFT, QUEUED, and COMPLETED order statuses. |
 | **Observerable.java** | Adam Bergmaier | Wrote interface |
-| **JUnit Testing**| Ayaan Deshmukh |  |
+| **JUnit Testing**| Ayaan Deshmukh | Created test classes for all classes that needeed it. Test each one for coverage and fuctionality, not fully functional just yet |
 ---
 ## GenAI Note
 - GenAI was used to identify complications in our files, which we referenced to correct any errors so that our application runs smoothly.
