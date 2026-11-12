@@ -1,16 +1,15 @@
 package restaurant;
-import java.util.List;
-import java.util.Scanner;
-// -------------------------------------------------------------------------
-/**
- * Displays model data and reads raw console input.
- * 
- *  @author adambergmaier
- *  @version Nov 10, 2026
- *  @author Houyue Chen
- *  @version Nov 12, 2026
- */
 
+import java.util.List;
+
+/**
+ * Displays model data and messages supplied by the controller.
+ *
+ * @author adambergmaier
+* @version Nov 10, 2026
+ * @author Houyue Chen
+ * @version Nov 12, 2026
+ */
 public class Display implements Observer {
 
     private Menu menu;
@@ -19,12 +18,16 @@ public class Display implements Observer {
     private InStore inStore;
     private DriveThrough driveThrough;
 
-    private Scanner scanner;
     private boolean refreshNeeded;
 
     /**
      * Creates the console view.
      *
+     * @param menu the restaurant menu
+     * @param inventory the restaurant inventory
+     * @param orderList the shared order queue
+     * @param inStore the active in-store customers
+     * @param driveThrough the active drive-through customers
      * @throws IllegalArgumentException if any model is null
      */
     public Display(
@@ -46,21 +49,7 @@ public class Display implements Observer {
         this.inStore = inStore;
         this.driveThrough = driveThrough;
 
-        scanner = new Scanner(System.in);
         refreshNeeded = true;
-    }
-
-    /**
-     * Reads one line without interpreting it.
-     *
-     * @return the input line, or null at end-of-input
-     */
-    public String readLine() {
-        if (scanner.hasNextLine()) {
-            return scanner.nextLine();
-        }
-
-        return null;
     }
 
     /**
@@ -165,7 +154,7 @@ public class Display implements Observer {
     }
 
     /**
-     * Displays the available stock for each current menu item.
+     * Displays available stock for each current menu item.
      */
     public void displayInventory() {
         System.out.println("=== Inventory ===");
@@ -180,7 +169,7 @@ public class Display implements Observer {
         for (int i = 0; i < items.size(); i++) {
             FoodItem item = items.get(i);
             int quantity = 0;
-            
+
             if (!inventory.outOfStock(item)) {
                 quantity = item.getQuantity();
             }
@@ -203,7 +192,7 @@ public class Display implements Observer {
 
         System.out.println(message);
     }
-    
+
     /**
      * Marks the display for refreshing after a model change.
      *
