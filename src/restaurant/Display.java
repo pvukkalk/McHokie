@@ -8,9 +8,7 @@ import java.util.Scanner;
  *  @author adambergmaier
  *  @version Nov 10, 2026
  *  @author Houyue Chen
- *  @version Nov 10, 2026
- *  @author Houyue Chen
- *  @version Nov 11, 2026
+ *  @version Nov 12, 2026
  */
 
 public class Display implements Observer {
@@ -85,7 +83,7 @@ public class Display implements Observer {
                 "%d. %s - $%.2f%n",
                 i + 1,
                 item.getName(),
-                item.getPrice());
+                (double)item.getPrice());
         }
     }
 
@@ -182,9 +180,9 @@ public class Display implements Observer {
         for (int i = 0; i < items.size(); i++) {
             FoodItem item = items.get(i);
             int quantity = 0;
-
+            
             if (!inventory.outOfStock(item)) {
-                quantity = inventory.getStock(item);
+                quantity = item.getQuantity();
             }
 
             System.out.println(item.getName() + ": " + quantity);
