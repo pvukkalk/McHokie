@@ -98,16 +98,19 @@ public class InStore implements Observable
      * Notifies all registered observers of changes to the order list.
      */
     public void notifyObservers() {
-        for (Observer observer : observers) {
+        for (int i = 0; i < observers.size(); i++) {
+            Observer observer = observers.get(i);
             observer.update(queue.getLast().getOrder());
          }
 
     }
     
     public void notifyObserversRemove() {
-        for (Observer observer : observers) {
+        for (int i = 0; i < observers.size(); i++) {
+            Observer observer = observers.get(i);
             observer.update(this);
          }
     }
 
 }
+
