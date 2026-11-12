@@ -74,34 +74,25 @@ public class HandleInput {
             String userInput = input.nextLine().trim();
 
             try {
-                if ("1".equals(userInput)) {
-                    display.displayMenu();
-                }
-                else if ("2".equals(userInput)) {
-                    display.displayOrderList();
-                }
-                else if ("3".equals(userInput)) {
-                    display.displayDriveThrough();
-                }
-                else if ("4".equals(userInput)) {
-                    display.displayInStore();
-                }
-                else if ("5".equals(userInput)) {
-                    display.displayInventory();
-                }
-                else if ("5a".equalsIgnoreCase(userInput)) {
-                    addStock();
-                }
-                else if ("5b".equalsIgnoreCase(userInput)) {
-                    removeStock();
-                }
-                else if ("6".equals(userInput)) {
-                    running = false;
-                }
-                else {
-                    display.displayMessage(
-                        "Invalid or unimplemented option. "
-                            + "Choose 1, 2, 3, 4, 5, 5a, 5b, or 6.");
+                switch (userInput.toLowerCase(java.util.Locale.ROOT)) {
+                    case "1": display.displayMenu(); break;
+                    case "1a": addMenuItem(); break;
+                    case "1b": removeMenuItem(); break;
+                    case "2": displayOrdersAndPositions(); break;
+                    case "2a": chooseCustomerType(); break;
+                    case "2b": completeNextOrder(); break;
+                    case "3": display.displayDriveThrough(); break;
+                    case "3a": createCustomerOrder(true); break;
+                    case "3b": removeCompletedCustomers(true); break;
+                    case "4": display.displayInStore(); break;
+                    case "4a": createCustomerOrder(false); break;
+                    case "4b": removeCompletedCustomers(false); break;
+                    case "5": display.displayInventory(); break;
+                    case "5a": addStock(); break;
+                    case "5b": removeStock(); break;
+                    case "6": running = false; break;
+                    default:
+                        display.displayMessage("Invalid option. Choose an option shown above.");
                 }
             }
             catch (IllegalArgumentException exception) {
@@ -233,5 +224,210 @@ public class HandleInput {
 
         display.displayMessage("Stock removed.");
         display.displayInventory();
+    }
+
+    /** Reads nonblank text; returns null at end-of-input. */
+    private String readText(String prompt) {
+        while (true) {
+            display.displayMessage(prompt);
+            if (!input.hasNextLine()) {
+                return null;
+            }
+            String text = input.nextLine().trim();
+            if (!text.isEmpty()) {
+                return text;
+            }
+            display.displayMessage("Please enter nonblank text.");
+        }
+    }
+
+    /** Creates a menu item. Prices use whole dollars, as FoodItem requires. */
+    private void addMenuItem() {
+        String name = readText("Enter the new item name:");
+        if (name == null) {
+            return;
+        }
+        for (FoodItem existing : menu.getMenu()) {
+            if (existing.getName().equalsIgnoreCase(name)) {
+                display.displayMessage("That item is already on the menu.");
+                return;
+            }
+        }
+        String type = readText("Enter the item type:");
+        if (type == null) {
+            return;
+        }
+        int price = readPositiveInt("Enter the price in whole dollars:");
+        if (price == -1) {
+            return;
+        }
+        // Menu notifications register the item in inventory with zero stock.
+        menu.addItem(new FoodItem(name, type, price));
+        display.displayMessage("Menu item added. Use 5a to add stock.");
+        display.displayMenu();
+    }
+
+    /** Removes an item from future menu selections. Existing orders remain. */
+    private void removeMenuItem() {
+        FoodItem item = selectItem();
+        if (item != null) {
+            menu.removeItem(item);
+            display.displayMessage("Menu item removed.");
+            display.displayMenu();
+        }
+    }
+
+    /** Option 2a starts an order associated with a new customer. */
+    private void chooseCustomerType() {
+        while (true) {
+            int type = readPositiveInt("Customer type: 1 = in-store, 2 = drive-through:");
+            if (type == -1) {
+                return;
+            }
+            if (type == 1 || type == 2) {
+                createCustomerOrder(type == 2);
+                return;
+            }
+            display.displayMessage("Please choose 1 or 2.");
+        }
+    }
+
+    /**
+     * Builds and submits a new customer's order, then registers the customer.
+     * @param car true for a drive-through customer
+     */
+    private void createCustomerOrder(boolean car) {
+        if (menu.getMenu().isEmpty()) {
+            display.displayMessage("The menu is empty. Add a menu item first.");
+            return;
+        }
+        String name = readText("Enter the customer name:");
+        if (name == null) {
+            return;
+        }
+        Customer customer;
+        if (car) {
+            int number = readPositiveInt("Enter a positive car number:");
+            if (number == -1) {
+                return;
+            }
+            for (DriveThroughCustomer existing : driveThrough.getCustomers()) {
+                if (existing.getCarNumber() == number) {
+                    display.displayMessage("That car number is already in use.");
+                    return;
+                }
+            }
+            customer = new DriveThroughCustomer(name, number);
+        }
+        else {
+            customer = new Customer(name);
+        }
+
+        Order order = customer.getOrder();
+        while (true) {
+            display.displayMenu();
+            String text = readText(
+                "Enter an item number, 0 to submit, or cancel to discard:");
+            if (text == null || "cancel".equalsIgnoreCase(text)) {
+                display.displayMessage("Order cancelled. Inventory was not changed.");
+                return;
+            }
+            int number;
+            try {
+                number = Integer.parseInt(text);
+            }
+            catch (NumberFormatException exception) {
+                display.displayMessage("Please enter a valid item number.");
+                continue;
+            }
+            if (number == 0) {
+                if (order.isEmpty()) {
+                    display.displayMessage("Cannot submit an empty order.");
+                    continue;
+                }
+                break;
+            }
+            List<FoodItem> items = menu.getMenu();
+            if (number < 1 || number > items.size()) {
+                display.displayMessage("That item number is not on the menu.");
+                continue;
+            }
+            FoodItem item = items.get(number - 1);
+            int reserved = 0;
+            for (FoodItem selected : order.getItems()) {
+                if (selected.getName().equalsIgnoreCase(item.getName())) {
+                    reserved++;
+                }
+            }
+            if (inventory.outOfStock(item)
+                || reserved >= inventory.getStock(item)) {
+                display.displayMessage("Not enough stock for " + item.getName());
+                continue;
+            }
+            order.addItem(item);
+            display.displayMessage("Added: " + item.getName());
+        }
+
+        // Validate before enqueue changes the order status or shared queue.
+        inventory.checkOrderStock(order);
+        orderList.enqueue(order);
+        // Inventory observes OrderList and deducts stock exactly once.
+        if (car) {
+            driveThrough.add((DriveThroughCustomer)customer);
+        }
+        else {
+            inStore.add(customer);
+        }
+        display.displayMessage("Order submitted for " + customer.getName()
+            + ". Queue position: " + orderList.getPosition(order));
+        displayOrdersAndPositions();
+    }
+
+    /** Displays queued orders and each active customer's position. */
+    private void displayOrdersAndPositions() {
+        display.displayOrderList();
+        for (Customer customer : inStore.getCustomers()) {
+            displayPosition(customer);
+        }
+        for (DriveThroughCustomer customer : driveThrough.getCustomers()) {
+            displayPosition(customer);
+        }
+    }
+
+    /** Displays a customer's current position or completed status. */
+    private void displayPosition(Customer customer) {
+        int position = orderList.getPosition(customer.getOrder());
+        display.displayMessage(customer.getName() + ": "
+            + (position > 0 ? "queue position " + position
+                : "order status " + customer.getStatus()));
+    }
+
+    /** Completes the FIFO head and lets its customer leave. */
+    private void completeNextOrder() {
+        Order completed = orderList.dequeue();
+        if (completed == null) {
+            display.displayMessage("There are no queued orders.");
+            return;
+        }
+        inStore.remove();
+        driveThrough.remove();
+        display.displayMessage("The next order is completed. The customer has left.");
+        displayOrdersAndPositions();
+    }
+
+    /** Removes only customers whose orders have already been completed. */
+    private void removeCompletedCustomers(boolean car) {
+        int before = car ? driveThrough.getCustomers().size()
+            : inStore.getCustomers().size();
+        if (car) {
+            driveThrough.remove();
+        }
+        else {
+            inStore.remove();
+        }
+        int after = car ? driveThrough.getCustomers().size()
+            : inStore.getCustomers().size();
+        display.displayMessage(after < before ? "Completed customer removed."
+            : "No completed customer to remove. Use 2b to complete the next order.");
     }
 }
