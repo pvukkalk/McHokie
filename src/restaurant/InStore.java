@@ -44,7 +44,7 @@ public class InStore implements Observable
             throw new IllegalArgumentException("Customer must have a QUEUED order to be added");
         }
         queue.addLast(customer);
-        update(this, customer); //notify observers of the change
+        notifyObservers(); //notify observers of the change
     }
 
     /**
@@ -56,7 +56,7 @@ public class InStore implements Observable
             return;
         }
         queue.removeFirst();
-        update(this, null); //notify observers of the change
+        notifyObserversRemove(); //notify observers of the change
     }
 
     /**
@@ -94,14 +94,18 @@ public class InStore implements Observable
 
     /**
      * Notifies all registered observers of changes to the order list.
-     * @param observable The observable object that has changed.
-     * @param arg An argument passed to the observers.
      */
-    public void update(Observable observable, Object arg) {
+    public void notifyObservers() {
         for (Observer observer : observers) {
-            observer.update(this, arg);
+            observer.update(queue.getLast());
          }
 
+    }
+    
+    public void notifyObserversRemove() {
+        for (Observer observer : observers) {
+            observer.update(this);
+         }
     }
 
 }

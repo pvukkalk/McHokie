@@ -78,7 +78,7 @@ public class DriveThrough implements Observable
             if (customer.getStatus() == OrderStatus.COMPLETED){
             queue.remove(customer);
             totalCars--;
-            notifyObservers(); // Notify observers of the change.
+            notifyObserversRemove(); // Notify observers of the change.
             return;
             }  
         }
@@ -127,8 +127,14 @@ public class DriveThrough implements Observable
      */
     public void notifyObservers() {
         for (Observer observer : observers) {
-            observer.update(this);
+            observer.update(queue.getLast());
          }
 
+    }
+    
+    public void notifyObserversRemove() {
+        for (Observer observer : observers) {
+            observer.update(this);
+         }
     }
 }

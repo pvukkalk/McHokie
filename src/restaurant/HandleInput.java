@@ -24,6 +24,7 @@ public class HandleInput
     // ~ Constructors ..........................................................
     /**
      * Create a new HandleInput object.
+     * 
      * @param menu
      * @param inventory
      * @param orderList
@@ -46,11 +47,50 @@ public class HandleInput
         this.driveThrough = driveThrough;
         this.display = display;
     }
+
+
     // ~Public Methods ........................................................
-    public void run() {
+    public void run()
+    {
         boolean running = true;
-        while (running) {
-            
+        while (running)
+        {
+            display.displayOptions();
+            String userInput = input.nextLine().trim();
+            if (userInput == "1")
+            {
+                display.displayMenu();
+            }
+
+            if (userInput == "2")
+            {
+                display.displayOrderList();
+            }
+
+            if (userInput == "3")
+            {
+                display.displayDriveThrough();
+            }
+            if (userInput == "4")
+            {
+                display.displayInStore();
+            }
+            if (userInput == "5")
+            {
+                display.displayInventory();
+            }
+            if (userInput == "5a")
+            {
+                inventory.addItem(item, quantity);
+            }
+            if (userInput == "5b")
+            {
+                inventory.remove(item, quantity);
+            }
+            if (userInput == "6")
+            {
+                continue;
+            }
         }
     }
 }
