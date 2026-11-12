@@ -67,7 +67,7 @@ public class DriveThrough implements Observable
         totalCars++;
 
         // Notify observers of the change.
-        update(this, customer); 
+        notifyObservers(); 
     }
 
     /**
@@ -78,7 +78,7 @@ public class DriveThrough implements Observable
             if (customer.getStatus() == OrderStatus.COMPLETED){
             queue.remove(customer);
             totalCars--;
-            update(this, customer); // Notify observers of the change.
+            notifyObservers(); // Notify observers of the change.
             return;
             }  
         }
@@ -124,12 +124,10 @@ public class DriveThrough implements Observable
 
     /**
      * Notifies all registered observers of changes to the order list.
-     * @param observable The observable object that has changed.
-     * @param arg An argument passed to the observers.
      */
-    public void update(Observable observable, Object arg) {
+    public void notifyObservers() {
         for (Observer observer : observers) {
-            observer.update(this, arg);
+            observer.update(this);
          }
 
     }
