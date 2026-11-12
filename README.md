@@ -17,6 +17,8 @@
 ---
 ## Next Steps
 ### What is left to finish the MVP?
+- We are left to implement automated customer adding, the user will be notified when a customer enters the drive-through or in-store line and is ready to order.
+- The display needs to add details about the customers and their orders.
 - We are left to create to a more cohesive and engaging user interface.
 - Refining the Observable and Observer interface methods.
 - Implement an equals() method for the Order and Customer classes.
