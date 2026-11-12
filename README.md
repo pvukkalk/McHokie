@@ -10,6 +10,8 @@
 - Yes the model stands alone. The view uses the model class's ArrayList<Observer> observers to add itself as an observer and be notified when the model class makes any changes to its data. The view class only knows the data that the model class shares, and the view does not know what changes were made to the data or why, it only knows the current set of data. The update() method is used to communicate when specific data is modified.
 ### What happened to your unknowns?
 - We were able to succesfully implement Observable and Observer interface methods.
+- We implemented a refresh() method that cleanly refreshes all five model displays when needed.
+- Our new unknowns are to adapt menu switching based on time of day and priority queue sorting.
 ### What doesn't work yet? 
 - 
 
@@ -20,6 +22,7 @@
 - Refining the Observable and Observer interface methods.
 - Implement an equals() method for the Order and Customer classes.
 ### Your change feature
+- Our one non-trivial that was not in our MVP was 
 ### Which stretch goals will you attempt?
 ### What new tests will you need? 
 ### Who does what? 
