@@ -19,7 +19,7 @@ public class CustomerTest
     public void setUp()
     {
         customer = new Customer("Sam");
-        burger = new FoodItem("Burger", "Food", 7, 10);
+        burger = new FoodItem("Burger", "Food", 7.00, 10);
     }
 
 
