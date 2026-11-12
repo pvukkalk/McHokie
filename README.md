@@ -40,17 +40,17 @@
 | **Display.java** | Houyue Chen | Implemented console output for the menu, orders, customers, and inventory; added Observer updates and refresh behavior. |
 | **DriveThrough.java** | Preeti Vukkalkar | Wrote fields, constructor, public methods and Observable interface methods. |
 | **DriveThroughCustomer.java** | Houyue Chen | Implemented Customer inheritance, car number validation, and restrictions on changing car numbers after submission. |
-| **FoodItem.java** | Adam Bergmaier |  |
-| **HandleInput.java** | Adam Bergmaier |  |
+ **FoodItem.java** | Adam Bergmaier | Wrote fields, constructor, and public methods |
+| **HandleInput.java** | Adam Bergmaier, Houyue Chen | Adam wrote fields, constructor, and began run method, Houyue used GenAI assistance to write public methods and exception handling |
 | **InStore.java** | Preeti Vukkalkar | Wrote fields, constructor and public methods. |
-| **Inventory.java** | Adam Bergmaier |  |
-| **Main.java** | Adam Bergmaier |  |
-| **Menu.java** | Adam Bergmaier |  |
-| **Observer.java** | Adam Bergmaier |  |
+| **Inventory.java** | Adam Bergmaier | Wrote fields, constructor and public methods |
+| **Main.java** | Adam Bergmaier | Wrote fields and main method |
+| **Menu.java** | Adam Bergmaier | Wrote fields, constructor, and methods |
+| **Observer.java** | Adam Bergmaier | Wrote interface |
 | **Order.java** | Preeti Vukkalkar | Wrote fields, constructor and public methods. |
 | **OrderList.java** | Preeti Vukkalkar | Wrote fields, constructor, public methods, Observable and Observer interface methods. |
 | **OrderStatus.java** | Houyue Chen | Defined the DRAFT, QUEUED, and COMPLETED order statuses. |
-| **Observerable.java** | Adam Bergmaier |  |
+| **Observerable.java** | Adam Bergmaier | Wrote interface |
 | **JUnit Testing**| Ayaan Deshmukh |  |
 ---
 ## GenAI Note
