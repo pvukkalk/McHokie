@@ -18,8 +18,9 @@ public class HandleInput
         { "Burger", "Fries", "Cola", "MilkShake", "Nuggets" };
     private static final String[] FoodTypes =
         { "Food", "Food", "Drink", "Dessert", "Food" };
-    private static final double[] FoodPrices = { 7.00, 5.00, 4.00, 7.00, 8.00 };
+    private static final int[] FoodPrices = { 7, 5, 4, 7, 8 };
 
+    private boolean menuInitialized;
     private Menu menu;
     private Inventory inventory;
     private OrderList orderList;
@@ -70,6 +71,7 @@ public class HandleInput
         this.display = display;
 
         input = new Scanner(System.in);
+        menuInitialized = false;
     }
 
 
@@ -78,9 +80,17 @@ public class HandleInput
      */
     public void run()
     {
-        for (int i = 0 ; i < FoodNames.length ; i++) {
-            menu.addItem(new FoodItem(FoodNames[i], FoodTypes[i], FoodPrices[i]));
+        // Initialize the menu once, even if run() is called again.
+        if (!menuInitialized)
+        {
+            for (int i = 0; i < FoodNames.length; i++)
+            {
+                menu.addItem(new FoodItem(
+                    FoodNames[i], FoodTypes[i], FoodPrices[i], 20));
+            }
+            menuInitialized = true;
         }
+
         boolean running = true;
 
         while (running)
@@ -97,59 +107,74 @@ public class HandleInput
 
             try
             {
-                switch (userInput.toLowerCase(java.util.Locale.ROOT))
+                if (userInput.equalsIgnoreCase("1"))
                 {
-                    case "1":
-                        display.displayMenu();
-                        break;
-                    case "1a":
-                        addMenuItem();
-                        break;
-                    case "1b":
-                        removeMenuItem();
-                        break;
-                    case "2":
-                        displayOrdersAndPositions();
-                        break;
-                    case "2a":
-                        chooseCustomerType();
-                        break;
-                    case "2b":
-                        completeNextOrder();
-                        break;
-                    case "3":
-                        display.displayDriveThrough();
-                        break;
-                    case "3a":
-                        createCustomerOrder(true);
-                        break;
-                    case "3b":
-                        removeCompletedCustomers(true);
-                        break;
-                    case "4":
-                        display.displayInStore();
-                        break;
-                    case "4a":
-                        createCustomerOrder(false);
-                        break;
-                    case "4b":
-                        removeCompletedCustomers(false);
-                        break;
-                    case "5":
-                        display.displayInventory();
-                        break;
-                    case "5a":
-                        addStock();
-                        break;
-                    case "5b":
-                        removeStock();
-                        break;
-                    case "6":
-                        running = false;
-                        break;
-                    default:
-                        display.displayMessage(
-                            "Invalid option. Choose an option shown above.");
+                    display.displayMenu();
+                }
+                else if (userInput.equalsIgnoreCase("1a"))
+                {
+                    addMenuItem();
+                }
+                else if (userInput.equalsIgnoreCase("1b"))
+                {
+                    removeMenuItem();
+                }
+                else if (userInput.equalsIgnoreCase("2"))
+                {
+                    displayOrdersAndPositions();
+                }
+                else if (userInput.equalsIgnoreCase("2a"))
+                {
+                    chooseCustomerType();
+                }
+                else if (userInput.equalsIgnoreCase("2b"))
+                {
+                    completeNextOrder();
+                }
+                else if (userInput.equalsIgnoreCase("3"))
+                {
+                    display.displayDriveThrough();
+                }
+                else if (userInput.equalsIgnoreCase("3a"))
+                {
+                    createCustomerOrder(true);
+                }
+                else if (userInput.equalsIgnoreCase("3b"))
+                {
+                    removeCompletedCustomers(true);
+                }
+                else if (userInput.equalsIgnoreCase("4"))
+                {
+                    display.displayInStore();
+                }
+                else if (userInput.equalsIgnoreCase("4a"))
+                {
+                    createCustomerOrder(false);
+                }
+                else if (userInput.equalsIgnoreCase("4b"))
+                {
+                    removeCompletedCustomers(false);
+                }
+                else if (userInput.equalsIgnoreCase("5"))
+                {
+                    display.displayInventory();
+                }
+                else if (userInput.equalsIgnoreCase("5a"))
+                {
+                    addStock();
+                }
+                else if (userInput.equalsIgnoreCase("5b"))
+                {
+                    removeStock();
+                }
+                else if (userInput.equalsIgnoreCase("6"))
+                {
+                    running = false;
+                }
+                else
+                {
+                    display.displayMessage(
+                        "Invalid option. Choose an option shown above.");
                 }
             }
             catch (IllegalArgumentException exception)
@@ -333,8 +358,10 @@ public class HandleInput
         {
             return;
         }
-        for (FoodItem existing : menu.getMenu())
+        List<FoodItem> menuItems = menu.getMenu();
+        for (int i = 0; i < menuItems.size(); i++)
         {
+            FoodItem existing = menuItems.get(i);
             if (existing.getName().equalsIgnoreCase(name))
             {
                 display.displayMessage("That item is already on the menu.");
@@ -384,7 +411,14 @@ public class HandleInput
             }
             if (type == 1 || type == 2)
             {
-                createCustomerOrder(type == 2);
+                if (type == 2)
+                {
+                    createCustomerOrder(true);
+                }
+                else
+                {
+                    createCustomerOrder(false);
+                }
                 return;
             }
             display.displayMessage("Please choose 1 or 2.");
@@ -411,6 +445,7 @@ public class HandleInput
             return;
         }
         Customer customer;
+        DriveThroughCustomer carCustomer = null;
         if (car)
         {
             int number = readPositiveInt("Enter a positive car number:");
@@ -418,8 +453,10 @@ public class HandleInput
             {
                 return;
             }
-            for (DriveThroughCustomer existing : driveThrough.getCustomers())
+            List<DriveThroughCustomer> carCustomers = driveThrough.getCustomers();
+            for (int i = 0; i < carCustomers.size(); i++)
             {
+                DriveThroughCustomer existing = carCustomers.get(i);
                 if (existing.getCarNumber() == number)
                 {
                     display
@@ -427,7 +464,8 @@ public class HandleInput
                     return;
                 }
             }
-            customer = new DriveThroughCustomer(name, number);
+            carCustomer = new DriveThroughCustomer(name, number);
+            customer = carCustomer;
         }
         else
         {
@@ -473,8 +511,10 @@ public class HandleInput
             }
             FoodItem item = items.get(number - 1);
             int reserved = 0;
-            for (FoodItem selected : order.getItems())
+            List<FoodItem> selectedItems = order.getItems();
+            for (int i = 0; i < selectedItems.size(); i++)
             {
+                FoodItem selected = selectedItems.get(i);
                 if (selected.getName().equalsIgnoreCase(item.getName()))
                 {
                     reserved++;
@@ -497,7 +537,7 @@ public class HandleInput
         // Inventory observes OrderList and deducts stock exactly once.
         if (car)
         {
-            driveThrough.add((DriveThroughCustomer)customer);
+            driveThrough.add(carCustomer);
         }
         else
         {
@@ -514,12 +554,16 @@ public class HandleInput
     private void displayOrdersAndPositions()
     {
         display.displayOrderList();
-        for (Customer customer : inStore.getCustomers())
+        List<Customer> storeCustomers = inStore.getCustomers();
+        for (int i = 0; i < storeCustomers.size(); i++)
         {
+            Customer customer = storeCustomers.get(i);
             displayPosition(customer);
         }
-        for (DriveThroughCustomer customer : driveThrough.getCustomers())
+        List<DriveThroughCustomer> carCustomers = driveThrough.getCustomers();
+        for (int i = 0; i < carCustomers.size(); i++)
         {
+            DriveThroughCustomer customer = carCustomers.get(i);
             displayPosition(customer);
         }
     }
@@ -529,11 +573,16 @@ public class HandleInput
     private void displayPosition(Customer customer)
     {
         int position = orderList.getPosition(customer.getOrder());
-        display.displayMessage(
-            customer.getName() + ": "
-                + (position > 0
-                    ? "queue position " + position
-                    : "order status " + customer.getStatus()));
+        if (position > 0)
+        {
+            display.displayMessage(
+                customer.getName() + ": queue position " + position);
+        }
+        else
+        {
+            display.displayMessage(
+                customer.getName() + ": order status " + customer.getStatus());
+        }
     }
 
 
@@ -557,23 +606,30 @@ public class HandleInput
     /** Removes only customers whose orders have already been completed. */
     private void removeCompletedCustomers(boolean car)
     {
-        int before = car
-            ? driveThrough.getCustomers().size()
-            : inStore.getCustomers().size();
+        int before;
+        int after;
+
         if (car)
         {
+            before = driveThrough.getCustomers().size();
             driveThrough.remove();
+            after = driveThrough.getCustomers().size();
         }
         else
         {
+            before = inStore.getCustomers().size();
             inStore.remove();
+            after = inStore.getCustomers().size();
         }
-        int after = car
-            ? driveThrough.getCustomers().size()
-            : inStore.getCustomers().size();
-        display.displayMessage(
-            after < before
-                ? "Completed customer removed."
-                : "No completed customer to remove. Use 2b to complete the next order.");
+
+        if (after < before)
+        {
+            display.displayMessage("Completed customer removed.");
+        }
+        else
+        {
+            display.displayMessage(
+                "No completed customer to remove. Use 2b to complete the next order.");
+        }
     }
 }
