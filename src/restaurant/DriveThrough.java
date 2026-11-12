@@ -67,7 +67,7 @@ public class DriveThrough implements Observable
         totalCars++;
 
         // Notify observers of the change.
-        update(); //subsitute with actual method to notify observers
+        update(this, customer); 
     }
 
     /**
@@ -78,7 +78,7 @@ public class DriveThrough implements Observable
             if (customer.getStatus() == OrderStatus.COMPLETED){
             queue.remove(customer);
             totalCars--;
-            update();
+            update(this, customer); // Notify observers of the change.
             return;
             }  
         }
@@ -104,31 +104,33 @@ public class DriveThrough implements Observable
 
 
     /**
-     * Adds an observer to the list of observers for the drive-through.
-     * @param observer
+     * Adds an observer to the list of observers for the order list.
+     * @param observer The observer to add.
      */
-    public void addObserver(Observer observer) {
-        if (observer == null) {
-            throw new IllegalArgumentException("Observer cannot be null.");
-        }
-        observers.add(observer);
-    }
-
-    /**
-     * Notifies all registered observers of changes to the queue.
-     */
-    public void update() {
-        for (Observer observer : observers) {
-            observer.update(null, null); 
+    public void addObserver(Observer observer){
+        if(observer !=null && !this.observers.contains(observer)){
+            observers.add(observer);
         }
     }
 
+    
     /**
-     * Removes an observer from the list of observers for the drive-through.
-     * @param observer
+     * Removes an observer from the list of observers for the order list.
+     * @param observer The observer to remove.
      */
-    public void removeObserver(Observer observer) {
+    public void removeObserver(Observer observer){
         observers.remove(observer);
     }
 
+    /**
+     * Notifies all registered observers of changes to the order list.
+     * @param observable The observable object that has changed.
+     * @param arg An argument passed to the observers.
+     */
+    public void update(Observable observable, Object arg) {
+        for (Observer observer : observers) {
+            observer.update(this, arg);
+         }
+
+    }
 }
