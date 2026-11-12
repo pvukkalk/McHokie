@@ -21,7 +21,7 @@
 - Refining the Observable and Observer interface methods.
 - Implement an equals() method for the Order and Customer classes.
 ### Your change feature
-- Our one non-trivial that was not in our MVP was 
+- Our planned non-trivial change feature is cancellation of a queued order. It will remove the selected order while preserving the relative order of the remaining orders, restore its inventory quantities, and remove the associated customer.
 ### Which stretch goals will you attempt?
 - To implement priority queue sorting, cancellation adapt menu switching based on dynamic time of day.
 ### What new tests will you need? 
@@ -36,23 +36,24 @@
 ## Attribution 
 | File / Class | Team Member(s) | Contribution / Role |
 | :--- | :--- | :--- |
-| **Customer.java** | Houyue Chen | Implemented customer name validation, order creation, and methods for accessing the order and its status. |
-| **Display.java** | Houyue Chen | Implemented console output for the menu, orders, customers, and inventory; added Observer updates and refresh behavior. |
+| **Customer.java** | Alex Chen | Implemented customer name validation, order creation, and methods for accessing the order and its status. |
+| **Display.java** | Alex Chen | Implemented console output for the menu, orders, customers, and inventory; added Observer updates and refresh behavior. |
 | **DriveThrough.java** | Preeti Vukkalkar | Wrote fields, constructor, public methods and Observable interface methods. |
-| **DriveThroughCustomer.java** | Houyue Chen | Implemented Customer inheritance, car number validation, and restrictions on changing car numbers after submission. |
+| **DriveThroughCustomer.java** | Alex Chen | Implemented Customer inheritance, car number validation, and restrictions on changing car numbers after submission. |
  **FoodItem.java** | Adam Bergmaier | Wrote fields, constructor, and public methods |
-| **HandleInput.java** | Adam Bergmaier, Houyue Chen | Adam wrote fields, constructor, and began run method, Houyue used GenAI assistance to write public methods and exception handling |
-| **InStore.java** | Preeti Vukkalkar | Wrote fields, constructor and public methods. |
-| **Inventory.java** | Adam Bergmaier | Wrote fields, constructor and public methods |
-| **Main.java** | Adam Bergmaier | Wrote fields and main method |
+| **HandleInput.java** | Adam Bergmaier/Houyue Chen | Adam wrote fields, constructor, and began run method, Houyue used GenAI assistance to write public methods and exception handling |
+| **InStore.java** | Preeti Vukkalkar/Alex Chen | Wrote fields, constructor and public methods. |
+| **Inventory.java** | Adam Bergmaier/Alex Chen | Wrote fields, constructor and public methods |
+| **Main.java** | Adam Bergmaier/Alex Chen | Wrote fields and main method |
 | **Menu.java** | Adam Bergmaier | Wrote fields, constructor, and methods |
 | **Observer.java** | Adam Bergmaier | Wrote interface |
-| **Order.java** | Preeti Vukkalkar | Wrote fields, constructor and public methods. |
-| **OrderList.java** | Preeti Vukkalkar | Wrote fields, constructor, public methods, Observable and Observer interface methods. |
+| **Order.java** | Preeti Vukkalkar/Alex Chen | Wrote fields, constructor and public methods. |
+| **OrderList.java** | Preeti Vukkalkar/Alex Chen | Wrote fields, constructor, public methods, Observable and Observer interface methods. |
 | **OrderStatus.java** | Houyue Chen | Defined the DRAFT, QUEUED, and COMPLETED order statuses. |
 | **Observerable.java** | Adam Bergmaier | Wrote interface |
 | **JUnit Testing**| Ayaan Deshmukh |  |
 ---
 ## GenAI Note
-- GenAI was used to identify complications in our files, which we referenced to correct any errors so that our application runs smoothly. 
+- GenAI was used to identify complications in our files, which we referenced to correct any errors so that our application runs smoothly.
+- We used GenAI to review class integrations, identify notification and inventory issues, check for mismatched interfaces, and debug parts of the code for HandleInput and OrderList. GenAI reported successful compilation and script workflow checks were completed; our team has completed local validation and JUnit testing.
 
