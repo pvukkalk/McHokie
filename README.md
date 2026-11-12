@@ -28,7 +28,7 @@
 - We need to test the logic for switching order status.
 ### Who does what? 
 - Preeti will refine the queue classes.
-- Houyen will refine Display class
+- Houyue will refine Display class
 - Adam will refine Main class
 - Ayaan will write additional test cases.
 
