@@ -78,7 +78,7 @@ public class Menu
     {
         for (Observer o : observers)
         {
-            o.update(menu);
+            o.update(this);
         }
     }
 

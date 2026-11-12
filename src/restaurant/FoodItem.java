@@ -11,12 +11,20 @@ package restaurant;
 public class FoodItem
 {
     // ~ Fields ................................................................
-    String name;
-    String type;
-    int price;
-    int quantity;
+    private String name;
+    private String type;
+    private int price;
+    private int quantity;
 
     // ~ Constructors ..........................................................
+    /**
+     * Create a new FoodItem object.
+     * 
+     * @param n
+     * @param t
+     * @param p
+     * @param q
+     */
     public FoodItem(String n, String t, int p, int q)
     {
         name = n;
@@ -26,43 +34,93 @@ public class FoodItem
     }
 
 
+    /**
+     * Default constructor for the food item class creates a FoodItem object
+     * with a default quantity of 0
+     * 
+     * @param n
+     * @param t
+     * @param p
+     */
+    public FoodItem(String n, String t, int p)
+    {
+        name = n;
+        type = t;
+        price = p;
+        quantity = 0;
+    }
+
+
     // ~Public Methods ........................................................
+    /**
+     * gets the name of the food item
+     * 
+     * @return name
+     */
     public String getName()
     {
         return name;
     }
 
 
+    /**
+     * gets the type of the food item; (i.e, food, breakfast, dessert, drink)
+     * 
+     * @return type
+     */
     public String getType()
     {
         return type;
     }
 
 
+    /**
+     * gets the price of the FoodItem
+     * 
+     * @return price
+     */
     public int getPrice()
     {
         return price;
     }
 
 
+    /**
+     * gets the quantity of the food item
+     * 
+     * @return quantity
+     */
     public int getQuantity()
     {
         return quantity;
     }
 
 
-    public Object getItem()
+    /**
+     * gets the current instance of the foodItem object
+     * 
+     * @return this
+     */
+    public FoodItem getItem()
     {
         return this;
     }
 
 
+    /**
+     * reduces the quantity of the item by 1
+     */
     public void decrementQuantity()
     {
         quantity--;
     }
 
 
+    /**
+     * adds the provided quantity to the food items quantity
+     * 
+     * @param q
+     */
     public void addQuantity(int q)
     {
         quantity += q;
