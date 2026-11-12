@@ -7,6 +7,8 @@ package restaurant;
  * 
  * @author adambergmaier
  * @version Nov 10, 2026
+ * @author Alex Chen
+ * @version Nov 12, 2026
  */
 public class Main
 {
@@ -15,7 +17,7 @@ public class Main
     OrderList orderList = new OrderList();
     DriveThrough driveThrough = new DriveThrough();
     InStore inStore = new InStore();
-    Display display = new Display();
+    Display display = new Display(menu, inventory, orderList, inStore, driveThrough);
     HandleInput handleInput = new HandleInput(
         menu,
         inventory,
