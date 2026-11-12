@@ -217,4 +217,18 @@ public class Display implements Observer {
             refreshNeeded = false;
         }
     }
+    /**
+    * Displays options
+    */
+    public void displayOptionMenu() {
+        System.out.println("=== Options Menu ===");
+        System.out.println("1. Display Menu");
+        System.out.println("2. Display Order Queue");
+        System.out.println("3. Display Drive-Through Customers");
+        System.out.println("4. Display In-Store Customers");
+        System.out.println("5. Display Inventory");
+        System.out.println("\t 5a. Add Item to Inventory");
+        System.out.println("\t 5b. Remove Item from Inventory");
+        System.out.println("6. Exit");
+    }
 }
