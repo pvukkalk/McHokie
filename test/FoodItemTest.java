@@ -2,58 +2,135 @@ package restaurant;
 
 // -------------------------------------------------------------------------
 /**
- * Tests for the Customer class.
+ * Tests for the FoodItem class.
  *
  * @author Ayaan Deshmukh
  * @version Nov 12, 2026
  */
-public class CustomerTest
+public class FoodItemTest
     extends student.TestCase
 {
-    private Customer customer;
     private FoodItem burger;
+    private FoodItem fries;
 
     /**
-     * Sets up a customer and an in-stock item.
+     * Sets up fresh objects for every test.
      */
     public void setUp()
     {
-        customer = new Customer("Sam");
-        burger = new FoodItem("Burger", "Food", 7, 10);
+        // FoodItem
+        burger = new FoodItem("Burger", "Food", 7);
+        fries = new FoodItem("Fries", "Food", 5, 10);
     }
 
 
+    // ~ FoodItem ..........................................................
+
     /**
-     * Tests that a new customer stores its name and has an empty DRAFT
-     * order.
+     * Tests that the three-argument constructor stores its values and
+     * starts the quantity at 0.
      */
     public void testConstructor()
     {
-        assertEquals("Sam", customer.getName());
-        assertNotNull(customer.getOrder());
-        assertTrue(customer.getOrder().isEmpty());
-        assertEquals(OrderStatus.DRAFT, customer.getStatus());
+        assertEquals("Burger", burger.getName());
+        assertEquals("Food", burger.getType());
+        assertEquals(7.0, burger.getPrice(), 0.001);
+        assertEquals(0, burger.getQuantity());
     }
 
 
     /**
-     * Tests that getOrder returns the same order every time.
+     * Tests that the four-argument constructor stores the quantity.
      */
-    public void testGetOrderSameObject()
+    public void testConstructorWithQuantity()
     {
-        assertSame(customer.getOrder(), customer.getOrder());
+        assertEquals("Fries", fries.getName());
+        assertEquals(5.0, fries.getPrice(), 0.001);
+        assertEquals(10, fries.getQuantity());
     }
 
 
     /**
-     * Tests that a null or blank name throws IllegalArgumentException.
+     * Tests that a price of 0 is allowed.
      */
-    public void testBadName()
+    public void testZeroPrice()
+    {
+        FoodItem water = new FoodItem("Water", "Drink", 0);
+        assertEquals(0.0, water.getPrice(), 0.001);
+    }
+
+
+    /**
+     * Tests that prices with cents are stored exactly.
+     */
+    public void testDecimalPrice()
+    {
+        FoodItem shake = new FoodItem("MilkShake", "Dessert", 4.5);
+        assertEquals(4.5, shake.getPrice(), 0.001);
+    }
+
+
+    /**
+     * Tests that getItem returns the same object.
+     */
+    public void testGetItem()
+    {
+        assertSame(burger, burger.getItem());
+    }
+
+
+    /**
+     * Tests that addQuantity increases the quantity.
+     */
+    public void testAddQuantity()
+    {
+        burger.addQuantity(3);
+        assertEquals(3, burger.getQuantity());
+        burger.addQuantity(2);
+        assertEquals(5, burger.getQuantity());
+    }
+
+
+    /**
+     * Tests that decrementQuantity lowers the quantity by 1.
+     */
+    public void testDecrementQuantity()
+    {
+        fries.decrementQuantity();
+        assertEquals(9, fries.getQuantity());
+    }
+
+
+    /**
+     * Spec: decrementQuantity at 0 throws IllegalStateException and the
+     * quantity stays at 0.
+     */
+    public void testDecrementAtZero()
     {
         Exception thrown = null;
         try
         {
-            new Customer(null);
+            burger.decrementQuantity();
+        }
+        catch (Exception e)
+        {
+            thrown = e;
+        }
+        assertTrue(thrown instanceof IllegalStateException);
+        assertEquals(0, burger.getQuantity());
+    }
+
+
+    /**
+     * Spec: addQuantity with a non-positive amount throws
+     * IllegalArgumentException.
+     */
+    public void testAddQuantityNotPositive()
+    {
+        Exception thrown = null;
+        try
+        {
+            fries.addQuantity(0);
         }
         catch (Exception e)
         {
@@ -64,7 +141,37 @@ public class CustomerTest
         thrown = null;
         try
         {
-            new Customer("   ");
+            fries.addQuantity(-4);
+        }
+        catch (Exception e)
+        {
+            thrown = e;
+        }
+        assertTrue(thrown instanceof IllegalArgumentException);
+        assertEquals(10, fries.getQuantity());
+    }
+
+
+    /**
+     * Spec: a null or blank name throws IllegalArgumentException.
+     */
+    public void testBadName()
+    {
+        Exception thrown = null;
+        try
+        {
+            new FoodItem(null, "Food", 5);
+        }
+        catch (Exception e)
+        {
+            thrown = e;
+        }
+        assertTrue(thrown instanceof IllegalArgumentException);
+
+        thrown = null;
+        try
+        {
+            new FoodItem("  ", "Food", 5);
         }
         catch (Exception e)
         {
@@ -75,31 +182,25 @@ public class CustomerTest
 
 
     /**
-     * Tests that updateStatus changes the status stored in the order.
+     * Spec: a null or blank type throws IllegalArgumentException.
      */
-    public void testUpdateStatus()
-    {
-        customer.getOrder().addItem(burger);
-        customer.updateStatus(OrderStatus.QUEUED);
-        assertEquals(OrderStatus.QUEUED, customer.getStatus());
-        assertEquals(
-            OrderStatus.QUEUED,
-            customer.getOrder().getStatus());
-
-        customer.updateStatus(OrderStatus.COMPLETED);
-        assertEquals(OrderStatus.COMPLETED, customer.getStatus());
-    }
-
-
-    /**
-     * Tests that a null status throws IllegalArgumentException.
-     */
-    public void testUpdateStatusNull()
+    public void testBadType()
     {
         Exception thrown = null;
         try
         {
-            customer.updateStatus(null);
+            new FoodItem("Burger", null, 5);
+        }
+        catch (Exception e)
+        {
+            thrown = e;
+        }
+        assertTrue(thrown instanceof IllegalArgumentException);
+
+        thrown = null;
+        try
+        {
+            new FoodItem("Burger", "", 5);
         }
         catch (Exception e)
         {
@@ -110,33 +211,19 @@ public class CustomerTest
 
 
     /**
-     * Spec: queuing an empty order throws IllegalStateException.
+     * Spec: a negative price throws IllegalArgumentException.
      */
-    public void testQueueEmptyOrder()
+    public void testNegativePrice()
     {
         Exception thrown = null;
         try
         {
-            customer.updateStatus(OrderStatus.QUEUED);
+            new FoodItem("Burger", "Food", -1);
         }
         catch (Exception e)
         {
             thrown = e;
         }
-        assertTrue(thrown instanceof IllegalStateException);
-        assertEquals(OrderStatus.DRAFT, customer.getStatus());
-    }
-
-
-    /**
-     * Tests that setOrder replaces the customer's order.
-     */
-    public void testSetOrder()
-    {
-        Order other = new Order();
-        other.addItem(burger);
-        customer.setOrder(other);
-        assertSame(other, customer.getOrder());
-        assertFalse(customer.getOrder().isEmpty());
+        assertTrue(thrown instanceof IllegalArgumentException);
     }
 }
