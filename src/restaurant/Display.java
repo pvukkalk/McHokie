@@ -223,7 +223,7 @@ public class Display implements Observer {
     public void displayOptionMenu() {
         System.out.println("=== Options Menu ===");
         System.out.println("1. Display Menu");
-        System.out.println("\t1a. Add Item to Menu");
+        System.out.println("\t 1a. Add Item to Menu");
         System.out.println("\t 1b. Remove Item from Menu");
 
         System.out.println("2. Display Order Queue");
