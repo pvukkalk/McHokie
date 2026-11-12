@@ -56,7 +56,7 @@ public class InStore implements Observable
             return;
         }
         queue.removeFirst();
-        notifyObserversRemove(); //notify observers of the change
+        notifyObservers(); //notify observers of the change
     }
 
     /**
@@ -97,15 +97,9 @@ public class InStore implements Observable
      */
     public void notifyObservers() {
         for (Observer observer : observers) {
-            observer.update(queue.getLast());
-         }
-
-    }
-    
-    public void notifyObserversRemove() {
-        for (Observer observer : observers) {
             observer.update(this);
          }
+
     }
 
 }

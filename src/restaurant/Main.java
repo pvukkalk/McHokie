@@ -41,12 +41,7 @@ public class Main
      */
     public static void main(String[] args)
     {
-        handleInput.run();
+        Main app = new Main();
+        app.handleInput.run();
     }
-    // ~ Fields ................................................................
-
-    // ~ Constructors ..........................................................
-
-    // ~Public Methods ........................................................
-
 }

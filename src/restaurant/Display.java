@@ -171,7 +171,7 @@ public class Display implements Observer {
             int quantity = 0;
 
             if (!inventory.outOfStock(item)) {
-                quantity = item.getQuantity();
+                quantity = inventory.getStock(item);
             }
 
             System.out.println(item.getName() + ": " + quantity);
@@ -216,5 +216,32 @@ public class Display implements Observer {
 
             refreshNeeded = false;
         }
+    }
+    /**
+     * Displays the options menu.
+     */
+    public void displayOptionMenu() {
+        System.out.println("=== Options Menu ===");
+        System.out.println("1. Display Menu");
+        System.out.println("\t 1a. Add Item to Menu");
+        System.out.println("\t 1b. Remove Item from Menu");
+
+        System.out.println("2. Display Order Queue");
+        System.out.println("\t 2a. Add Order to Queue");
+        System.out.println("\t 2b. Remove Order from Queue");
+
+        System.out.println("3. Display Drive-Through Customers");
+        System.out.println("\t 3a. Add Drive-Through Customer");
+        System.out.println("\t 3b. Remove Drive-Through Customer");
+
+        System.out.println("4. Display In-Store Customers");
+        System.out.println("\t 4a. Add In-Store Customer");
+        System.out.println("\t 4b. Remove In-Store Customer");
+
+        System.out.println("5. Display Inventory");
+        System.out.println("\t 5a. Add Item to Inventory");
+        System.out.println("\t 5b. Remove Item from Inventory");
+        
+        System.out.println("6. Exit");
     }
 }

@@ -1,6 +1,7 @@
 package restaurant;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,158 +13,182 @@ import java.util.List;
  *  @version Nov 10, 2026
  *  @author pvukkalk
  *  @version Nov 11, 2026
+ * @author Houyue Chen
+ * @version Nov 12, 2026
  */
-public class OrderList implements Observer, Observable
-{
-    //~ Fields ................................................................
+public class OrderList implements Observer, Observable {
+
     private LinkedList<Order> queue;
     private ArrayList<Observer> observers;
 
-    //~ Constructors ..........................................................
+    /**
+     * Creates an empty shared order queue.
+     */
     public OrderList() {
         queue = new LinkedList<Order>();
         observers = new ArrayList<Observer>();
     }
-    //~Public  Methods ........................................................
 
     /**
-     * Adds an order to the back of the queue, changes its status to QUEUED, and notifies observers     * @param order The order to be added.
-     * @throws IllegalArgumentException if the order is null or not in DRAFT status.
+     * Adds a nonempty draft order to the back of the queue.
+     *
+     * @param order the order to submit
+     * @throws IllegalArgumentException if order is null or empty
+     * @throws IllegalStateException if order is not DRAFT
      */
-    public void enqueue(Order order){
-        //Throws IllegalArgumentException if the order is null or not in DRAFT status.
-        if(order == null || order.getStatus() != OrderStatus.DRAFT){
-            throw new IllegalArgumentException("Order must be non-null and in DRAFT status");
+    public void enqueue(Order order) {
+        if (order == null) {
+            throw new IllegalArgumentException(
+                "Order cannot be null.");
         }
-        //Changes status to QUEUED, adds it to the back of the queue, and notifies observers.
+
+        if (order.isEmpty()) {
+            throw new IllegalArgumentException(
+                "Order cannot be empty.");
+        }
+
+        if (order.getStatus() != OrderStatus.DRAFT) {
+            throw new IllegalStateException(
+                "Only a DRAFT order can be queued.");
+        }
+
         order.updateStatus(OrderStatus.QUEUED);
         queue.addLast(order);
-        notifyObservers();
 
+        notifyObservers(order);
     }
 
     /**
-     * Removes and returns the earliest order, changes its status to COMPLETED, and notifies observers.
-     * @return
+     * Completes and removes the earliest queued order.
+     *
+     * @return the completed order, or null if the queue is empty
      */
-    public Order dequeue(){
-        //Returns null if queue is empty
-        if(queue.isEmpty()){
+    public Order dequeue() {
+        if (queue.isEmpty()) {
             return null;
         }
-        //Stores element to remove, and removes earliest order
-        Order order = queue.removeFirst();
 
-        //Changes status to COMPLETED
+        Order order = queue.getFirst();
+
         order.updateStatus(OrderStatus.COMPLETED);
+        queue.removeFirst();
 
-        //Notifies observers
-        notifyObservers();
+        notifyObservers(order);
 
-        // returns order that was deleted
         return order;
-        
     }
 
     /**
-     * Returns the earliest order without removing it, or null if the queue is empty.
-     * @return The earliest order or null if the queue is empty.
+     * Returns the earliest order without removing it.
+     *
+     * @return the earliest order, or null if the queue is empty
      */
-    public Order peek(){
-       //Returns null is queue is empty 
-        if( queue.isEmpty()){
+    public Order peek() {
+        if (queue.isEmpty()) {
             return null;
         }
-        //Return the earliest order without removing it
+
         return queue.getFirst();
     }
 
     /**
-     * Returns whether the queue has no orders.
-     * @return true if the queue is empty, false otherwise.
+     * Returns whether the queue is empty.
+     *
+     * @return true if no orders are queued
      */
-    public boolean isEmpty(){
-        // If queue is empty, return true
-        if(queue.isEmpty()){
-            return true;
-        }
-        //If queue is not empty, return false
-        return false;
+    public boolean isEmpty() {
+        return queue.isEmpty();
     }
 
     /**
-     * Returns the number of orders in the queue.
-     * @return
+     * Returns the number of queued orders.
+     *
+     * @return the queue size
      */
-    public int size(){
+    public int size() {
         return queue.size();
     }
 
     /**
-     * Returns position of a order in the queue.
-     * @param order The order whose position is to be found.
-     * @return The position of the order in the queue, or -1 if the order is null or not in the queue.
+     * Returns an order's position, starting at 1.
+     *
+     * @param order the order to locate
+     * @return its position, or -1 if null or not queued
      */
-    public int getPosition(Order order){
-        //Return -1 if order is null or not in the queue
-        if(order == null || !queue.contains(order)){
+    public int getPosition(Order order) {
+        if (order == null || !queue.contains(order)) {
             return -1;
         }
-        //Return the position of the order in the queue
-        return queue.indexOf(order);
+
+        return queue.indexOf(order) + 1;
     }
 
     /**
-     * Returns an unmodifiable snapshot of the queued orders in FIFO order.
-     * @return A list of all orders in the queue.
+     * Returns an unmodifiable snapshot in FIFO order.
+     *
+     * @return a snapshot of the queued orders
      */
-    public List<Order> getOrders(){
-        //Returns an empty list when the queue is empty
-        if(queue.isEmpty()){
-            return new ArrayList<Order>();
-        }
-        return new ArrayList<Order>(queue);
+    public List<Order> getOrders() {
+        ArrayList<Order> copy = new ArrayList<Order>(queue);
 
+        return Collections.unmodifiableList(copy);
     }
 
     /**
-     * Adds an observer to the list of observers for the order list.
-     * @param observer The observer to add.
+     * Registers an observer once.
+     *
+     * @param observer the observer to register
+     * @throws IllegalArgumentException if observer is null
      */
     @Override
-    public void addObserver(Observer observer){
-        if(observer !=null && !this.observers.contains(observer)){
+    public void addObserver(Observer observer) {
+        if (observer == null) {
+            throw new IllegalArgumentException(
+                "Observer cannot be null.");
+        }
+
+        if (!observers.contains(observer)) {
             observers.add(observer);
         }
     }
 
-    
     /**
-     * Removes an observer from the list of observers for the order list.
-     * @param observer The observer to remove.
+     * Unregisters an observer.
+     * Removing an unregistered observer has no effect.
+     *
+     * @param observer the observer to remove
+     * @throws IllegalArgumentException if observer is null
      */
-    public void removeObserver(Observer observer){
+    @Override
+    public void removeObserver(Observer observer) {
+        if (observer == null) {
+            throw new IllegalArgumentException(
+                "Observer cannot be null.");
+        }
+
         observers.remove(observer);
     }
 
     /**
-     * Notifies all registered observers of changes to the order list.
-     * @param observable The observable object that has changed.
-     * @param arg An argument passed to the observers.
+     * Notifies registered observers of a change.
+     *
+     * @param arg information about the change
      */
-    public void notifyObservers() {
-        for (Observer observer : observers) {
-            observer.update(this);
-         }
+    private void notifyObservers(Object arg) {
+        for (int i = 0; i < observers.size(); i++) {
+            Observer observer = observers.get(i);
+            observer.update(arg);
+        }
+    }
 
-    }
-    
-    public void update(Order order) {
-        enqueue(order);
-    }
-    
+    /**
+     * Forwards a model notification to registered observers.
+     * Does not enqueue, complete, or remove orders.
+     *
+     * @param arg information supplied by the observed model
+     */
+    @Override
     public void update(Object arg) {
-        dequeue();
+        notifyObservers(arg);
     }
-
 }
