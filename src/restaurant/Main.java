@@ -12,7 +12,6 @@ package restaurant;
  */
 public class Main
 {
-    FoodItem item;
     Menu menu = new Menu();
     Inventory inventory = new Inventory();
     OrderList orderList = new OrderList();
@@ -26,12 +25,7 @@ public class Main
         inStore,
         driveThrough,
         display);
-    private static final String[] FoodNames =
-        { "Burger", "Fries", "Cola", "MilkShake", "Nuggets" };
-    private static final String[] FoodTypes =
-        { "Food", "Food", "Drink", "Dessert", "Food"};
-    private static final double[] FoodPrices =
-        { 7.00, 5.00, 4.00, 7.00, 8.00};
+    
 
     // ----------------------------------------------------------
     /**

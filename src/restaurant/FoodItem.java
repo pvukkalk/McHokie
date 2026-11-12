@@ -13,7 +13,7 @@ public class FoodItem
     // ~ Fields ................................................................
     private String name;
     private String type;
-    private int price;
+    private double price;
     private int quantity;
 
     // ~ Constructors ..........................................................
@@ -25,7 +25,7 @@ public class FoodItem
      * @param p
      * @param q
      */
-    public FoodItem(String n, String t, int p, int q)
+    public FoodItem(String n, String t, double p, int q)
     {
         name = n;
         type = t;
@@ -42,7 +42,7 @@ public class FoodItem
      * @param t
      * @param p
      */
-    public FoodItem(String n, String t, int p)
+    public FoodItem(String n, String t, double p)
     {
         name = n;
         type = t;
@@ -79,7 +79,7 @@ public class FoodItem
      * 
      * @return price
      */
-    public int getPrice()
+    public double getPrice()
     {
         return price;
     }
