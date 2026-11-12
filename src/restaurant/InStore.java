@@ -12,6 +12,8 @@ import java.util.List;
  *  @version Nov 10, 2026
  *  @author pvukkalk
  *  @version Nov 11, 2026
+ *  @author Alex Chen
+ *  @version Nov 12, 2026
  */
 public class InStore implements Observable
 {
@@ -56,7 +58,7 @@ public class InStore implements Observable
             return;
         }
         queue.removeFirst();
-        notifyObservers(); //notify observers of the change
+        notifyObserversRemove(); //notify observers of the change
     }
 
     /**
