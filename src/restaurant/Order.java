@@ -5,9 +5,7 @@ import java.util.List;
 
 // -------------------------------------------------------------------------
 /**
- *  Write a one-sentence summary of your class here.
- *  Follow it with additional details about its purpose, what abstraction
- *  it represents, and how to use it.
+ *  Only contains the items that the customer ordered and how many of each item were ordered.
  * 
  *  @author adambergmaier
  *  @version Nov 10, 2026
@@ -63,7 +61,7 @@ public class Order
     public double getTotalPrice() {
         double total = 0;
         for (FoodItem item : OrderedItems) {
-            total += item.getPrice();
+            total += item.getPrice() * item.getQuantity();
         }
         return total;
     }
@@ -92,29 +90,18 @@ public class Order
         if (status == null) {
             throw new IllegalArgumentException("Order status cannot be null.");
         }
-        if (status == OrderStatus.QUEUED && OrderedItems.isEmpty()) {
-            throw new IllegalStateException("Cannot queue an empty order.");
+        OrderStatus currentStatus = getStatus();
+        if (currentStatus == OrderStatus.DRAFT && status != OrderStatus.QUEUED) {
+            throw new IllegalStateException("Invalid status transition from DRAFT to " + status);
+        } else if (currentStatus == OrderStatus.QUEUED && status != OrderStatus.COMPLETED) {
+            throw new IllegalStateException("Invalid status transition from QUEUED to " + status);
+        } else if (currentStatus == OrderStatus.COMPLETED) {
+            throw new IllegalStateException("Cannot change status of a COMPLETED order.");
         }
-        if (status == OrderStatus.COMPLETED && OrderedItems.isEmpty()) {
-            throw new IllegalStateException("Cannot complete an empty order.");
-        }
-        if (status == OrderStatus.DRAFT && !OrderedItems.isEmpty()) {
-            throw new IllegalStateException("Cannot revert to DRAFT from a non-empty order.");
-        }
-        if (status == OrderStatus.QUEUED && getStatus() != OrderStatus.DRAFT) {
-            throw new IllegalStateException("Can only queue a DRAFT order.");
-        }
-        if (status == OrderStatus.COMPLETED && getStatus() != OrderStatus.QUEUED) {
-            throw new IllegalStateException("Can only complete a QUEUED order.");
-        }
-        
-        // Additional logic to update the order status can be added here.
-        if (status == OrderStatus.COMPLETED) {
-            OrderedItems.clear(); // Clear items when order is completed
-        }
-
-        
-    
+        currentStatus = status;
+            
     }
+}
+
 }
 

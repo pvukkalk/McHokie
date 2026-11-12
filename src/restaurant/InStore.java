@@ -44,7 +44,7 @@ public class InStore implements Observable
             throw new IllegalArgumentException("Customer must have a QUEUED order to be added");
         }
         queue.addLast(customer);
-        update(); //notify observers of the change
+        update(this, customer); //notify observers of the change
     }
 
     /**
@@ -56,7 +56,7 @@ public class InStore implements Observable
             return;
         }
         queue.removeFirst();
-        update(); //notify observers of the change
+        update(this, null); //notify observers of the change
     }
 
     /**
@@ -73,31 +73,35 @@ public class InStore implements Observable
     }
 
     /**
-     * Notifies observers of changes to the queue.
-     */
-    public void update() {
-        for (Observer observer : observers) {
-            observer.update(null, null); 
-        }
-    }
-    /**
-     * Adds an observer to the list of observers for the in-store queue.
+     * Adds an observer to the list of observers for the order list.
      * @param observer The observer to add.
      */
-    public void addObserver(Observer observer) {
-        if (observer == null) {
-            throw new IllegalArgumentException("Observer cannot be null.");
+    @Override
+    public void addObserver(Observer observer){
+        if(observer !=null && !this.observers.contains(observer)){
+            observers.add(observer);
         }
+    }
 
-        observers.add(observer);
+    
+    /**
+     * Removes an observer from the list of observers for the order list.
+     * @param observer The observer to remove.
+     */
+    public void removeObserver(Observer observer){
+        observers.remove(observer);
     }
 
     /**
-     * Removes an observer from the list of observers for the in-store queue.
-     * @param observer The observer to remove.
+     * Notifies all registered observers of changes to the order list.
+     * @param observable The observable object that has changed.
+     * @param arg An argument passed to the observers.
      */
-    public void removeObserver(Observer observer) {
-        observers.remove(observer);
+    public void update(Observable observable, Object arg) {
+        for (Observer observer : observers) {
+            observer.update(this, arg);
+         }
+
     }
 
 }
