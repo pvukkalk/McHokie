@@ -171,7 +171,7 @@ public class Display implements Observer {
             int quantity = 0;
 
             if (!inventory.outOfStock(item)) {
-                quantity = item.getQuantity();
+                quantity = inventory.getStock(item);
             }
 
             System.out.println(item.getName() + ": " + quantity);
