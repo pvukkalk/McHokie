@@ -1,41 +1,38 @@
 package restaurant;
 
-// -------------------------------------------------------------------------
 /**
- * Write a one-sentence summary of your class here. Follow it with additional
- * details about its purpose, what abstraction it represents, and how to use it.
- * 
+ * Creates and connects the restaurant models, view, and controller.
  * @author adambergmaier
- * @version Nov 10, 2026
- * @author Alex Chen
+ * @author Houyue Chen
  * @version Nov 12, 2026
  */
-public class Main
-{
-    Menu menu = new Menu();
-    Inventory inventory = new Inventory();
-    OrderList orderList = new OrderList();
-    DriveThrough driveThrough = new DriveThrough();
-    InStore inStore = new InStore();
-    Display display = new Display(menu, inventory, orderList, inStore, driveThrough);
-    HandleInput handleInput = new HandleInput(
-        menu,
-        inventory,
-        orderList,
-        inStore,
-        driveThrough,
-        display);
-    
-
-    // ----------------------------------------------------------
+public class Main {
     /**
-     * Place a description of your method here.
-     * 
-     * @param args
+     * Starts the console application.
+     * @param args command-line arguments, ignored
      */
-    public static void main(String[] args)
-    {
-        Main app = new Main();
-        app.handleInput.run();
+    public static void main(String[] args) {
+        Menu menu = new Menu();
+        Inventory inventory = new Inventory();
+        OrderList orderList = new OrderList();
+        InStore inStore = new InStore();
+        DriveThrough driveThrough = new DriveThrough();
+        Display display = new Display(
+            menu, inventory, orderList, inStore, driveThrough);
+
+        menu.addObserver(inventory);
+        menu.addObserver(display);
+        inventory.addObserver(display);
+        orderList.addObserver(inventory);
+        orderList.addObserver(display);
+        inStore.addObserver(orderList);
+        inStore.addObserver(display);
+        driveThrough.addObserver(orderList);
+        driveThrough.addObserver(display);
+
+        HandleInput controller = new HandleInput(
+            menu, inventory, orderList, inStore, driveThrough, display);
+        controller.run();
     }
 }
+
