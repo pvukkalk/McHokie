@@ -127,7 +127,7 @@ public class DriveThrough implements Observable
      */
     public void notifyObservers() {
         for (Observer observer : observers) {
-            observer.update(queue.getLast());
+            observer.update(queue.getLast().getOrder());
          }
 
     }

@@ -55,7 +55,7 @@ public class OrderList implements Observer, Observable {
         order.updateStatus(OrderStatus.QUEUED);
         queue.addLast(order);
 
-        notifyObservers(order);
+        notifyObservers();
     }
 
     /**
@@ -73,7 +73,7 @@ public class OrderList implements Observer, Observable {
         order.updateStatus(OrderStatus.COMPLETED);
         queue.removeFirst();
 
-        notifyObservers(order);
+        notifyObservers();
 
         return order;
     }
@@ -174,21 +174,18 @@ public class OrderList implements Observer, Observable {
      *
      * @param arg information about the change
      */
-    private void notifyObservers(Object arg) {
+    private void notifyObservers() {
         for (int i = 0; i < observers.size(); i++) {
             Observer observer = observers.get(i);
-            observer.update(arg);
+            observer.update(this);
         }
     }
 
-    /**
-     * Forwards a model notification to registered observers.
-     * Does not enqueue, complete, or remove orders.
-     *
-     * @param arg information supplied by the observed model
-     */
-    @Override
+    public void update(Order order) {
+        enqueue(order);
+    }
+    
     public void update(Object arg) {
-        notifyObservers(arg);
+        dequeue();
     }
 }

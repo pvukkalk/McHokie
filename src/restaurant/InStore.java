@@ -97,9 +97,15 @@ public class InStore implements Observable
      */
     public void notifyObservers() {
         for (Observer observer : observers) {
-            observer.update(this);
+            observer.update(queue.getLast().getOrder());
          }
 
+    }
+    
+    public void notifyObserversRemove() {
+        for (Observer observer : observers) {
+            observer.update(this);
+         }
     }
 
 }
