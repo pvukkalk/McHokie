@@ -55,7 +55,7 @@ public class OrderList implements Observer, Observable {
         order.updateStatus(OrderStatus.QUEUED);
         queue.addLast(order);
 
-        notifyObservers();
+        notifyObservers(order);
     }
 
     /**
@@ -73,7 +73,7 @@ public class OrderList implements Observer, Observable {
         order.updateStatus(OrderStatus.COMPLETED);
         queue.removeFirst();
 
-        notifyObservers();
+        notifyObservers(order);
 
         return order;
     }
@@ -174,18 +174,19 @@ public class OrderList implements Observer, Observable {
      *
      * @param arg information about the change
      */
-    private void notifyObservers() {
+    private void notifyObservers(Object arg) {
         for (int i = 0; i < observers.size(); i++) {
             Observer observer = observers.get(i);
-            observer.update(this);
+            observer.update(arg);
         }
     }
 
-    public void update(Order order) {
-        enqueue(order);
-    }
-    
+    /**
+     * Forwards notifications without changing the shared queue.
+     * @param arg information supplied by an observed model
+     */
+    @Override
     public void update(Object arg) {
-        dequeue();
+        notifyObservers(arg);
     }
 }
