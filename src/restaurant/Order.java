@@ -1,107 +1,132 @@
 package restaurant;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-// -------------------------------------------------------------------------
 /**
- *  Only contains the items that the customer ordered and how many of each item were ordered.
- * 
- *  @author adambergmaier
- *  @version Nov 10, 2026
- *  @author pvukkalk
- *  @version Nov 11, 2026
+ * Stores ordered food items and tracks the order status.
+ *
+ * @author adambergmaier
+ * @version Nov 10, 2026
+ * @author pvukkalk
+ * @version Nov 11, 2026
+ * @author Houyue Chen
+ * @version Nov 12, 2026
  */
-public class Order
-{
-    //~ Fields ................................................................
-    private ArrayList<FoodItem> OrderedItems;
-    //~ Constructors ..........................................................
-    public Order() {
-        OrderedItems = new ArrayList<FoodItem>();
-    }
-    //~Public  Methods ........................................................
+public class Order {
+
+    private ArrayList<FoodItem> orderedItems;
+    private OrderStatus status;
+
     /**
-     * Adds one food item to a draft order. Repeated items represent multiple quantities/
-     * @param item The food item to add.
+     * Creates an empty draft order.
      */
-    public void addItem(FoodItem item){
-        if(item == null){
-            throw new IllegalArgumentException("Item cannot be null");
-        }
-        if(item.getQuantity() <= 0){
-            throw new IllegalArgumentException("Item quantity must be greater than 0");
-        }
-        OrderedItems.add(item);
+    public Order() {
+        orderedItems = new ArrayList<FoodItem>();
+        status = OrderStatus.DRAFT;
     }
 
     /**
-     * Returns an unmodifiable copy of the food items in the order.
-     * @return A list of food items in the order.
+     * Adds one food item to a draft order.
+     * Repeated entries represent multiple servings.
+     *
+     * @param item the food item to add
+     * @throws IllegalArgumentException if item is null
+     * @throws IllegalStateException if the order is not DRAFT
+     */
+    public void addItem(FoodItem item) {
+        if (item == null) {
+            throw new IllegalArgumentException(
+                "Item cannot be null.");
+        }
+
+        if (status != OrderStatus.DRAFT) {
+            throw new IllegalStateException(
+                "Items can only be added to a DRAFT order.");
+        }
+
+        orderedItems.add(item);
+    }
+
+    /**
+     * Returns an unmodifiable copy of the ordered items.
+     *
+     * @return a snapshot of the ordered items
      */
     public List<FoodItem> getItems() {
-        return new ArrayList<FoodItem>(OrderedItems);
+        ArrayList<FoodItem> copy =
+            new ArrayList<FoodItem>(orderedItems);
+
+        return Collections.unmodifiableList(copy);
     }
 
     /**
-     * Returns whether the order contains no food items.
-     * @return boolean indicating whether the order is empty.
+     * Returns whether the order contains no items.
+     *
+     * @return true if the order is empty
      */
-    public boolean isEmpty(){
-        if(OrderedItems.isEmpty()){
-            return true;
-        }
-        return false;
+    public boolean isEmpty() {
+        return orderedItems.isEmpty();
     }
 
     /**
-     * Returns the sum of all ordered item prices in dollars.
-     * @return The total price of the order.
+     * Returns the total price of all ordered servings.
+     *
+     * @return the total price in the same unit as FoodItem prices
      */
     public double getTotalPrice() {
-        double total = 0;
-        for (FoodItem item : OrderedItems) {
-            total += item.getPrice() * item.getQuantity();
+        double total = 0.0;
+
+        for (int i = 0; i < orderedItems.size(); i++) {
+            FoodItem item = orderedItems.get(i);
+            total += item.getPrice();
         }
+
         return total;
     }
 
     /**
-     * Returns DRAFT, QUEUED, or COMPLETED.
-     * @return The current status of the order.
+     * Returns the current order status.
+     *
+     * @return DRAFT, QUEUED, or COMPLETED
      */
     public OrderStatus getStatus() {
-        if(OrderedItems.isEmpty()) {
-            return OrderStatus.DRAFT;
-        } else if (OrderedItems.size() > 0) {
-            return OrderStatus.QUEUED;
-        } else {
-            return OrderStatus.COMPLETED;
-        }
+        return status;
     }
 
     /**
-     * Changes the order status from DRAFT to QUEUED or from QUEUED to COMPLETED.
-     * @param status The new status to set for the order.
-     * @throws IllegalArgumentException if the status transition is invalid.
+     * Changes DRAFT to QUEUED or QUEUED to COMPLETED.
+     *
+     * @param newStatus the requested status
+     * @throws IllegalArgumentException if newStatus is null
+     * @throws IllegalStateException if the transition is invalid
+     *         or an empty order is being queued
      */
-    public void updateStatus(OrderStatus status) {
-        // Validate the status transition
-        if (status == null) {
-            throw new IllegalArgumentException("Order status cannot be null.");
+    public void updateStatus(OrderStatus newStatus) {
+        if (newStatus == null) {
+            throw new IllegalArgumentException(
+                "Order status cannot be null.");
         }
-        OrderStatus currentStatus = getStatus();
-        if (currentStatus == OrderStatus.DRAFT && status != OrderStatus.QUEUED) {
-            throw new IllegalStateException("Invalid status transition from DRAFT to " + status);
-        } else if (currentStatus == OrderStatus.QUEUED && status != OrderStatus.COMPLETED) {
-            throw new IllegalStateException("Invalid status transition from QUEUED to " + status);
-        } else if (currentStatus == OrderStatus.COMPLETED) {
-            throw new IllegalStateException("Cannot change status of a COMPLETED order.");
+
+        if (status == OrderStatus.DRAFT
+            && newStatus == OrderStatus.QUEUED) {
+
+            if (isEmpty()) {
+                throw new IllegalStateException(
+                    "Cannot queue an empty order.");
+            }
+
+            status = newStatus;
         }
-        currentStatus = status;
-            
+        else if (status == OrderStatus.QUEUED
+            && newStatus == OrderStatus.COMPLETED) {
+
+            status = newStatus;
+        }
+        else {
+            throw new IllegalStateException(
+                "Invalid order status transition.");
+        }
     }
 }
-
-}
-
