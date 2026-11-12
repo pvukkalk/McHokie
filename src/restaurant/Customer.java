@@ -13,7 +13,7 @@ package restaurant;
 public class Customer {
 
     private final String customerName;
-    private final Order customerOrder;
+    private Order customerOrder;
 
     /**
      * Creates a customer with an empty draft order.
@@ -29,6 +29,10 @@ public class Customer {
 
         this.customerName = customerName;
         this.customerOrder = new Order();
+    }
+    
+    public void setOrder(Order order) {
+        customerOrder = order;
     }
 
     /**
