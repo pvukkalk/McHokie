@@ -38,7 +38,7 @@ public class OrderList implements Observer, Observable
         //Changes status to QUEUED, adds it to the back of the queue, and notifies observers.
         order.updateStatus(OrderStatus.QUEUED);
         queue.addLast(order);
-        notifyObservers(order);
+        update(this, order);
 
     }
 
@@ -58,7 +58,7 @@ public class OrderList implements Observer, Observable
         order.updateStatus(OrderStatus.COMPLETED);
 
         //Notifies observers
-        notifyObservers(order);
+        update(this, order);
 
         // returns order that was deleted
         return order;
@@ -137,15 +137,6 @@ public class OrderList implements Observer, Observable
         }
     }
 
-    /**
-     * Notifies all registered observers of a change in the order list.
-     * @param order The order that was added or removed.
-     */
-    public void notifyObservers(Order order){
-        for(Observer observer: observers){
-            observer.update(this, order);
-        }
-    }
     
     /**
      * Removes an observer from the list of observers for the order list.
@@ -155,8 +146,15 @@ public class OrderList implements Observer, Observable
         observers.remove(observer);
     }
 
+    /**
+     * Notifies all registered observers of changes to the order list.
+     * @param observable The observable object that has changed.
+     * @param arg An argument passed to the observers.
+     */
     public void update(Observable observable, Object arg) {
-        
+        for (Observer observer : observers) {
+            observer.update(this, arg);
+         }
 
     }
 
