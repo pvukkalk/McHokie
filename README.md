@@ -24,10 +24,10 @@
 ## Attribution 
 | File / Class | Team Member(s) | Contribution / Role |
 | :--- | :--- | :--- |
-| **Customer.java** |  |  |
-| **Display.java** |  |  |
+| **Customer.java** | Houyue Chen | Implemented customer name validation, order creation, and methods for accessing the order and its status. |
+| **Display.java** | Houyue Chen | Implemented console output for the menu, orders, customers, and inventory; added Observer updates and refresh behavior. |
 | **DriveThrough.java** | Preeti Vukkalkar | Wrote fields, constructor, public methods and Observable interface methods. |
-| **DriveThroughCustomer.java** |  |  |
+| **DriveThroughCustomer.java** | Houyue Chen | Implemented Customer inheritance, car number validation, and restrictions on changing car numbers after submission. |
 | **FoodItem.java** |  |  |
 | **HandleInput.java** |  |  |
 | **InStore.java** | Preeti Vukkalkar | Wrote fields, constructor and public methods. |
@@ -37,7 +37,7 @@
 | **Observer.java** |  |  |
 | **Order.java** | Preeti Vukkalkar | Wrote fields, constructor and public methods. |
 | **OrderList.java** | Preeti Vukkalkar | Wrote fields, constructor, public methods, Observable and Observer interface methods. |
-| **OrderStatus.java** |  |  |
+| **OrderStatus.java** | Houyue Chen | Defined the DRAFT, QUEUED, and COMPLETED order statuses. |
 | **Observerable.java** |  |  |
 
 ---
