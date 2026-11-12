@@ -1,30 +1,44 @@
 package restaurant;
+
 // -------------------------------------------------------------------------
 /**
- *  Write a one-sentence summary of your class here.
- *  Follow it with additional details about its purpose, what abstraction
- *  it represents, and how to use it.
+ * Write a one-sentence summary of your class here. Follow it with additional
+ * details about its purpose, what abstraction it represents, and how to use it.
  * 
- *  @author adambergmaier
- *  @version Nov 10, 2026
+ * @author adambergmaier
+ * @version Nov 10, 2026
  */
 public class Main
 {
+    Menu menu = new Menu();
+    Inventory inventory = new Inventory();
+    OrderList orderList = new OrderList();
+    DriveThrough driveThrough = new DriveThrough();
+    InStore inStore = new InStore();
+    Display display = new Display();
+    HandleInput handleInput = new HandleInput(
+        menu,
+        inventory,
+        orderList,
+        inStore,
+        driveThrough,
+        display);
 
     // ----------------------------------------------------------
     /**
      * Place a description of your method here.
+     * 
      * @param args
      */
     public static void main(String[] args)
     {
-        // TODO Auto-generated method stub
 
+        handleInput.run();
     }
-    //~ Fields ................................................................
+    // ~ Fields ................................................................
 
-    //~ Constructors ..........................................................
+    // ~ Constructors ..........................................................
 
-    //~Public  Methods ........................................................
+    // ~Public Methods ........................................................
 
 }
