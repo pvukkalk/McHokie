@@ -11,9 +11,9 @@
 ### What happened to your unknowns?
 - We were able to succesfully implement Observable and Observer interface methods.
 - We implemented a refresh() method that cleanly refreshes all five model displays when needed.
+- We have yet to figure out a way to cancel an order in an efficient way without having to iterate through the entire queue or create a new queue that excluded the respective item.
 ### What doesn't work yet? 
-- 
-
+- Writing JUNit tests for the model separately from the console input and output.
 ---
 ## Next Steps
 ### What is left to finish the MVP?
