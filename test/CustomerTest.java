@@ -19,7 +19,7 @@ public class CustomerTest
     public void setUp()
     {
         customer = new Customer("Sam");
-        burger = new FoodItem("Burger", "Food", 7.00, 10);
+        burger = new FoodItem("Burger", "Food", 7, 10);
     }
 
 
@@ -125,5 +125,18 @@ public class CustomerTest
         }
         assertTrue(thrown instanceof IllegalStateException);
         assertEquals(OrderStatus.DRAFT, customer.getStatus());
+    }
+
+
+    /**
+     * Tests that setOrder replaces the customer's order.
+     */
+    public void testSetOrder()
+    {
+        Order other = new Order();
+        other.addItem(burger);
+        customer.setOrder(other);
+        assertSame(other, customer.getOrder());
+        assertFalse(customer.getOrder().isEmpty());
     }
 }
