@@ -13,6 +13,7 @@
 ## Next Steps
 ### What is left to finish the MVP?
 - We are left to create to a more cohesive and engaging user interface.
+- Refining the Observable and Observer interface methods.
 ### Your change feature
 ### Which stretch goals will you attempt?
 ### What new tests will you need? 
