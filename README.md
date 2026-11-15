@@ -1,20 +1,6 @@
 # McHokie
 
 ## Reflection
-### Deliverable 3:
-#### What changed from your specification?
-- Which class implemented what interfaces was not explicitly stated in our spec. We noted, in order to notify the observer objects of any changes, DriveThrough, OrderList, InStore, Menu and Inventory classes were changed to implement the Observable interface.
-- On the same note, the following classes implements Observer interface: Display, Inventory, OrderList. The Inventory and OrderList classes implement both Observer and Observable.
-- Following Adam’s clarification of controller responsibilities, we removed Scanner and readLine() from Display. HandleInput now owns console input, while Display handles output.
-- We changed Display.update() to update(Object arg) to match the revised Observer interface. It marks the view for refresh without changing model data.
-#### Did the model really stand alone? 
-- Yes the model stands alone. The view uses the model class's ArrayList<Observer> observers to add itself as an observer and be notified when the model class makes any changes to its data. The view class only knows the data that the model class shares, and the view does not know what changes were made to the data or why, it only knows the current set of data. The update() method is used to communicate when specific data is modified.
-#### What happened to your unknowns?
-- We were able to succesfully implement Observable and Observer interface methods.
-- We implemented a refresh() method that cleanly refreshes all five model displays when needed.
-- We have yet to figure out a way to cancel an order in an efficient way without having to iterate through the entire queue or create a new queue that excluded the respective item.
-#### What doesn't work yet? 
-- Writing JUNit tests for the model separately from the console input and output.
 ### Deliverable 4:
 #### How did your design absorb the change?
 #### Did the change cross the model/view line? 
@@ -22,24 +8,6 @@
 #### What doesn't work yet? 
 ---
 ## Next Steps
-### Deliverable 3:
-#### What is left to finish the MVP?
-- We are left to implement automated customer adding, the user will be notified when a customer enters the drive-through or in-store line and is ready to order.
-- The display needs to add details about the customers and their orders.
-- We are left to create to a more cohesive and engaging user interface.
-- Refining the Observable and Observer interface methods.
-- Implement an equals() method for the Order and Customer classes.
-#### Your change feature
-- Our planned non-trivial change feature is cancellation of a queued order. It will remove the selected order while preserving the relative order of the remaining orders, restore its inventory quantities, and remove the associated customer.
-#### Which stretch goals will you attempt?
-- To implement priority queue sorting, cancellation adapt menu switching based on dynamic time of day.
-#### What new tests will you need? 
-- We need to test the logic for switching order status.
-#### Who does what? 
-- Preeti will refine the queue classes.
-- Houyue will refine Display class
-- Adam will refine Main class
-- Ayaan will write additional test cases.
 ### Deliverable 4:
 #### What is left for the final build? 
 #### Which stretch goals are you committing to, and which are you dropping?
