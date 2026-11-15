@@ -31,9 +31,9 @@
 - Implement an equals() method for the Order and Customer classes.
 #### Your change feature
 - Our planned non-trivial change feature is cancellation of a queued order. It will remove the selected order while preserving the relative order of the remaining orders, restore its inventory quantities, and remove the associated customer.
-### Which stretch goals will you attempt?
+#### Which stretch goals will you attempt?
 - To implement priority queue sorting, cancellation adapt menu switching based on dynamic time of day.
-### What new tests will you need? 
+#### What new tests will you need? 
 - We need to test the logic for switching order status.
 #### Who does what? 
 - Preeti will refine the queue classes.
