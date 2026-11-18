@@ -85,8 +85,12 @@ public class HandleInput
         {
             for (int i = 0; i < FoodNames.length; i++)
             {
-                menu.addItem(new FoodItem(
-                    FoodNames[i], FoodTypes[i], FoodPrices[i], 20));
+                menu.addItem(
+                    new FoodItem(
+                        FoodNames[i],
+                        FoodTypes[i],
+                        FoodPrices[i],
+                        20));
             }
             menuInitialized = true;
         }
@@ -122,10 +126,6 @@ public class HandleInput
                 else if (userInput.equalsIgnoreCase("2"))
                 {
                     displayOrdersAndPositions();
-                }
-                else if (userInput.equalsIgnoreCase("2a"))
-                {
-                    chooseCustomerType();
                 }
                 else if (userInput.equalsIgnoreCase("2b"))
                 {
@@ -453,7 +453,8 @@ public class HandleInput
             {
                 return;
             }
-            List<DriveThroughCustomer> carCustomers = driveThrough.getCustomers();
+            List<DriveThroughCustomer> carCustomers =
+                driveThrough.getCustomers();
             for (int i = 0; i < carCustomers.size(); i++)
             {
                 DriveThroughCustomer existing = carCustomers.get(i);
@@ -549,7 +550,7 @@ public class HandleInput
         displayOrdersAndPositions();
     }
 
-
+    //EDIT THIS LATER
     /** Displays queued orders and each active customer's position. */
     private void displayOrdersAndPositions()
     {
@@ -568,7 +569,7 @@ public class HandleInput
         }
     }
 
-
+    //EDIT THIS LATER
     /** Displays a customer's current position or completed status. */
     private void displayPosition(Customer customer)
     {
@@ -589,14 +590,24 @@ public class HandleInput
     /** Completes the FIFO head and lets its customer leave. */
     private void completeNextOrder()
     {
-        Order completed = orderList.dequeue();
+        Order completed = orderList.peek();
         if (completed == null)
         {
             display.displayMessage("There are no queued orders.");
             return;
         }
-        inStore.remove();
-        driveThrough.remove();
+        else if (completed.equals(driveThrough.getHeadCustomer().getOrder()))
+        {
+            driveThrough.getHeadCustomer().getOrder()
+                .updateStatus(OrderStatus.COMPLETED);
+            driveThrough.remove();
+        }
+        else
+        {
+            inStore.getHeadCustomer().getOrder()
+                .updateStatus(OrderStatus.COMPLETED);
+            inStore.remove();
+        }
         display.displayMessage(
             "The next order is completed. The customer has left.");
         displayOrdersAndPositions();

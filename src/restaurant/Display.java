@@ -227,7 +227,6 @@ public class Display implements Observer {
         System.out.println("\t 1b. Remove Item from Menu");
 
         System.out.println("2. Display Order Queue");
-        System.out.println("\t 2a. Add Order to Queue");
         System.out.println("\t 2b. Remove Order from Queue");
 
         System.out.println("3. Display Drive-Through Customers");
