@@ -20,10 +20,10 @@
 #### What will your 3-minute demo show? 
 - Our 3 minute demo will show the system that McHokie uses to take orders, keep track of orders and complete them from both a drive through and in-store line of customers. We will show how queue logic is integrated in our system. 
 #### Who does what?
-- Preeti will
-- Houyue will
-- Adam will
-- Ayaan will 
+- Preeti will work on stretch goal.
+- Houyue will work on refining classes.
+- Adam will work on display.
+- Ayaan will work on test cases.
 ---
 ## Attribution 
 | File / Class | Team Member(s) | Contribution / Role |
