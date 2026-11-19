@@ -12,6 +12,8 @@ import java.util.List;
  * @version Nov 10, 2026
  * @author pvukkalk
  * @version Nov 11, 2026
+ * @author Alex Chen
+ * @version Nov 19, 2026
  */
 public class DriveThrough
     implements Observable
@@ -41,40 +43,44 @@ public class DriveThrough
      */
     public void add(DriveThroughCustomer customer)
     {
-        // Validate the customer object
         if (customer == null)
         {
-            throw new IllegalArgumentException("Customer cannot be null.");
+            throw new IllegalArgumentException(
+                "Customer cannot be null.");
         }
 
-        // Check if the customer is already in the queue
         if (queue.contains(customer))
         {
             throw new IllegalArgumentException(
                 "Customer is already registered.");
         }
 
-        // Check if the customer has a valid car number
-        if (customer.getCarNumber() < 0)
+        if (customer.getCarNumber() <= 0)
         {
             throw new IllegalArgumentException(
-                "Customer must have a valid car number.");
+                "Car number must be positive.");
         }
 
-        // Check if the order is QUEUED
+        for (DriveThroughCustomer existing : queue)
+        {
+            if (existing.getCarNumber() == customer.getCarNumber())
+            {
+                throw new IllegalArgumentException(
+                    "That car number is already in use.");
+            }
+        }
+
         if (customer.getStatus() != OrderStatus.QUEUED)
         {
-            throw new IllegalStateException("Customer's order must be QUEUED.");
+            throw new IllegalStateException(
+                "Customer's order must be QUEUED.");
         }
 
-        // Add the customer to the queue and update totalCars
-        queue.add(customer);
+        queue.addLast(customer);
         totalCars++;
-
-        // Notify observers of the change.
         notifyObservers();
     }
-
+    
 
     /**
      * Removes the earliest customer from the queue whose order is COMPLETED and
