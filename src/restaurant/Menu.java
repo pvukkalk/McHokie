@@ -93,3 +93,36 @@ public class Menu
         }
     }
 
+
+    /**
+     * @param o
+     *            Observer object to be added to the observers arrayList
+     */
+    @Override
+    public void addObserver(Observer o)
+    {
+        if (o == null)
+        {
+            throw new IllegalArgumentException("Observer cannot be null.");
+        }
+        if (!observers.contains(o))
+        {
+            observers.add(o);
+        }
+    }
+
+
+    /**
+     * @pararm o Observer object to be removed from the observers arrayList
+     *             Removing an unregistered observer has no effect.
+     */
+    @Override
+    public void removeObserver(Observer o)
+    {
+        if (o == null)
+        {
+            throw new IllegalArgumentException("Observer cannot be null.");
+        }
+        observers.remove(o);
+    }
+}
