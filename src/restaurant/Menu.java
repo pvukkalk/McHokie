@@ -35,7 +35,7 @@ public class Menu
      */
     public ArrayList<FoodItem> getMenu()
     {
-        return menu;
+        return new ArrayList<FoodItem>(menu);
     }
 
 
@@ -46,6 +46,17 @@ public class Menu
      */
     public void addItem(FoodItem item)
     {
+        if (item == null)
+        {
+            throw new IllegalArgumentException("Item cannot be null.");
+        }
+        for (FoodItem existing : menu)
+        {
+            if (existing.getName().equalsIgnoreCase(item.getName()))
+            {
+                throw new IllegalArgumentException("Item is already on the menu.");
+            }
+        }
         menu.add(item);
         notifyObservers();
     }
@@ -82,30 +93,3 @@ public class Menu
         }
     }
 
-
-    /**
-     * @param o
-     *            Observer object to be added to the observers arrayList
-     */
-    @Override
-    public void addObserver(Observer o)
-    {
-        observers.add(o);
-    }
-
-
-    /**
-     * @pararm o Observer object to be removed from the observers arrayList
-     *             Throws NoSuchElementException if the observer is not in the
-     *             arrayList
-     */
-    @Override
-    public void removeObserver(Observer o)
-    {
-        if (!observers.contains(o))
-        {
-            throw new NoSuchElementException("Element does not exist");
-        }
-        observers.remove(o);
-    }
-}
