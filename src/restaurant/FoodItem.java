@@ -6,7 +6,9 @@ package restaurant;
  * details about its purpose, what abstraction it represents, and how to use it.
  * 
  * @author adambergmaier
- * @version Nov 10, 2026
+ * @version Nov 10, 2026 
+ * @author Alex Chen
+ * @version Nov 19, 2026
  */
 public class FoodItem
 {
@@ -25,14 +27,37 @@ public class FoodItem
      * @param p
      * @param q
      */
-    public FoodItem(String n, String t, double p, int q)
+public FoodItem(String n, String t, double p, int q)
+{
+    if (n == null || n.trim().isEmpty())
     {
-        name = n;
-        type = t;
-        price = p;
-        quantity = q;
+        throw new IllegalArgumentException(
+            "Item name cannot be blank.");
     }
 
+    if (t == null || t.trim().isEmpty())
+    {
+        throw new IllegalArgumentException(
+            "Item type cannot be blank.");
+    }
+
+    if (!Double.isFinite(p) || p < 0)
+    {
+        throw new IllegalArgumentException(
+            "Price must be finite and nonnegative.");
+    }
+
+    if (q < 0)
+    {
+        throw new IllegalArgumentException(
+            "Quantity cannot be negative.");
+    }
+
+    name = n.trim();
+    type = t.trim();
+    price = p;
+    quantity = q;
+}
 
     /**
      * Default constructor for the food item class creates a FoodItem object
@@ -44,12 +69,8 @@ public class FoodItem
      */
     public FoodItem(String n, String t, double p)
     {
-        name = n;
-        type = t;
-        price = p;
-        quantity = 0;
+        this(n, t, p, 0);
     }
-
 
     // ~Public Methods ........................................................
     /**
@@ -112,9 +133,14 @@ public class FoodItem
      */
     public void decrementQuantity()
     {
+        if (quantity <= 0)
+        {
+            throw new IllegalStateException(
+                "Item is out of stock.");
+        }
+
         quantity--;
     }
-
 
     /**
      * adds the provided quantity to the food items quantity
@@ -123,6 +149,18 @@ public class FoodItem
      */
     public void addQuantity(int q)
     {
+        if (q <= 0)
+        {
+            throw new IllegalArgumentException(
+                "Quantity to add must be positive.");
+        }
+
+        if (quantity > Integer.MAX_VALUE - q)
+        {
+            throw new IllegalArgumentException(
+                "Resulting quantity is too large.");
+        }
+
         quantity += q;
     }
 }
