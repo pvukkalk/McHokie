@@ -631,4 +631,15 @@ public class HandleInput
     /** Returns whether a car in the lane has not ordered yet. */
     private boolean hasUnorderedCar()
     {
-        List<Dri
+        List<DriveThroughCustomer> cars = driveThrough.getCustomers();
+        for (int i = 0; i < cars.size(); i++)
+        {
+            if (cars.get(i).getStatus() == OrderStatus.DRAFT)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+}
