@@ -1,7 +1,6 @@
 package restaurant;
 
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Reads console commands and coordinates model and view operations.
@@ -28,6 +27,12 @@ public class HandleInput
     private DriveThrough driveThrough;
     private Display display;
     private Scanner input;
+    private int carNumber = 1;
+
+    private Random random = new Random();
+    private int walkInNumber = 1;
+    private LinkedList<DriveThroughCustomer> waitingCars =
+        new LinkedList<DriveThroughCustomer>();
 
     /**
      * Creates the controller.
@@ -99,6 +104,9 @@ public class HandleInput
 
         while (running)
         {
+            admitWaitingCars();
+            maybeArrive();
+            display.refresh();
             display.displayOptionMenu();
             display.displayMessage("Enter an option:");
 
@@ -127,6 +135,10 @@ public class HandleInput
                 {
                     displayOrdersAndPositions();
                 }
+                else if (userInput.equalsIgnoreCase("2a"))
+                {
+                    takeNextOrder();
+                }
                 else if (userInput.equalsIgnoreCase("2b"))
                 {
                     completeNextOrder();
@@ -135,25 +147,9 @@ public class HandleInput
                 {
                     display.displayDriveThrough();
                 }
-                else if (userInput.equalsIgnoreCase("3a"))
-                {
-                    createCustomerOrder(true);
-                }
-                else if (userInput.equalsIgnoreCase("3b"))
-                {
-                    removeCompletedCustomers(true);
-                }
                 else if (userInput.equalsIgnoreCase("4"))
                 {
                     display.displayInStore();
-                }
-                else if (userInput.equalsIgnoreCase("4a"))
-                {
-                    createCustomerOrder(false);
-                }
-                else if (userInput.equalsIgnoreCase("4b"))
-                {
-                    removeCompletedCustomers(false);
                 }
                 else if (userInput.equalsIgnoreCase("5"))
                 {
@@ -398,82 +394,24 @@ public class HandleInput
     }
 
 
-    /** Option 2a starts an order associated with a new customer. */
-    private void chooseCustomerType()
-    {
-        while (true)
-        {
-            int type = readPositiveInt(
-                "Customer type: 1 = in-store, 2 = drive-through:");
-            if (type == -1)
-            {
-                return;
-            }
-            if (type == 1 || type == 2)
-            {
-                if (type == 2)
-                {
-                    createCustomerOrder(true);
-                }
-                else
-                {
-                    createCustomerOrder(false);
-                }
-                return;
-            }
-            display.displayMessage("Please choose 1 or 2.");
-        }
-    }
-
-
     /**
-     * Builds and submits a new customer's order, then registers the customer.
-     * 
-     * @param car
-     *            true for a drive-through customer
+     * Builds and submits a new customer's order, then registers to the
+     * customer.
      */
-    private void createCustomerOrder(boolean car)
+    private void takeNextOrder()
     {
-        if (menu.getMenu().isEmpty())
+        Customer customer = nextCustomerToOrder();
+        if (customer == null)
         {
-            display.displayMessage("The menu is empty. Add a menu item first.");
+            display.displayMessage("No customer is ready to order.");
             return;
         }
-        String name = readText("Enter the customer name:");
+        display.displayMessage("Now serving " + customer.getName() + ".");
+        String name = readText("Enter the customer's name:");
         if (name == null)
-        {
             return;
-        }
-        Customer customer;
-        DriveThroughCustomer carCustomer = null;
-        if (car)
-        {
-            int number = readPositiveInt("Enter a positive car number:");
-            if (number == -1)
-            {
-                return;
-            }
-            List<DriveThroughCustomer> carCustomers =
-                driveThrough.getCustomers();
-            for (int i = 0; i < carCustomers.size(); i++)
-            {
-                DriveThroughCustomer existing = carCustomers.get(i);
-                if (existing.getCarNumber() == number)
-                {
-                    display
-                        .displayMessage("That car number is already in use.");
-                    return;
-                }
-            }
-            carCustomer = new DriveThroughCustomer(name, number);
-            customer = carCustomer;
-        }
-        else
-        {
-            customer = new Customer(name);
-        }
 
-        Order order = customer.getOrder();
+        Order order = new Order();
         while (true)
         {
             display.displayMenu();
@@ -532,26 +470,34 @@ public class HandleInput
             display.displayMessage("Added: " + item.getName());
         }
 
-        // Validate before enqueue changes the order status or shared queue.
         inventory.checkOrderStock(order);
-        orderList.enqueue(order);
-        // Inventory observes OrderList and deducts stock exactly once.
-        if (car)
-        {
-            driveThrough.add(carCustomer);
-        }
+        customer.setName(name);
+        order.setType(customer instanceof DriveThroughCustomer ? "DT" : "IS");
+        order.setCustomerName(name);
+        customer.setOrder(order);           // order now lives in the customer
+
+        if (customer instanceof DriveThroughCustomer)
+            driveThrough.notifyObservers();
         else
-        {
-            inStore.add(customer);
-        }
+            inStore.notifyObservers();     // OrderList observes and enqueues it
+
         display.displayMessage(
-            "Order submitted for " + customer.getName() + ". Queue position: "
+            "Order taken for " + name + ". Queue position: "
                 + orderList.getPosition(order));
-        displayOrdersAndPositions();
     }
 
-    //EDIT THIS LATER
-    /** Displays queued orders and each active customer's position. */
+    // Public void displayOrdersAndPositions() {
+    // List<Customer> customerList = new ArrayList<Customer>();
+
+    // }
+
+
+    // EDIT THIS LATER
+    /**
+     * Displays queued orders and each active customer's position. Displays list
+     * of in store customers followed by list of drive-through customers
+     */
+
     private void displayOrdersAndPositions()
     {
         display.displayOrderList();
@@ -569,7 +515,8 @@ public class HandleInput
         }
     }
 
-    //EDIT THIS LATER
+
+    // EDIT THIS LATER
     /** Displays a customer's current position or completed status. */
     private void displayPosition(Customer customer)
     {
@@ -590,57 +537,98 @@ public class HandleInput
     /** Completes the FIFO head and lets its customer leave. */
     private void completeNextOrder()
     {
-        Order completed = orderList.peek();
-        if (completed == null)
+        Order head = orderList.peek();
+        if (head == null)
         {
             display.displayMessage("There are no queued orders.");
             return;
         }
-        else if (completed.equals(driveThrough.getHeadCustomer().getOrder()))
+
+        for (DriveThroughCustomer c : driveThrough.getCustomers())
         {
-            driveThrough.getHeadCustomer().getOrder()
-                .updateStatus(OrderStatus.COMPLETED);
-            driveThrough.remove();
+            if (c.getOrder() == head)
+            {
+                c.updateStatus(OrderStatus.COMPLETED);
+                driveThrough.remove();
+                display.displayMessage("Order completed.");
+                return;
+            }
         }
-        else
+        for (Customer c : inStore.getCustomers())
         {
-            inStore.getHeadCustomer().getOrder()
-                .updateStatus(OrderStatus.COMPLETED);
-            inStore.remove();
+            if (c.getOrder() == head)
+            {
+                c.updateStatus(OrderStatus.COMPLETED);
+                inStore.remove();
+                display.displayMessage("Order completed.");
+                return;
+            }
         }
-        display.displayMessage(
-            "The next order is completed. The customer has left.");
-        displayOrdersAndPositions();
+        display.displayMessage("No customer found for the first order.");
     }
 
 
-    /** Removes only customers whose orders have already been completed. */
-    private void removeCompletedCustomers(boolean car)
+    /** Returns the next customer to order (drive-through first), or null. */
+    private Customer nextCustomerToOrder()
     {
-        int before;
-        int after;
-
-        if (car)
+        List<DriveThroughCustomer> cars = driveThrough.getCustomers();
+        for (int i = 0; i < cars.size(); i++)
         {
-            before = driveThrough.getCustomers().size();
-            driveThrough.remove();
-            after = driveThrough.getCustomers().size();
+            if (cars.get(i).getStatus() == OrderStatus.DRAFT)
+            {
+                return cars.get(i);
+            }
+        }
+        List<Customer> walkIns = inStore.getCustomers();
+        for (int i = 0; i < walkIns.size(); i++)
+        {
+            if (walkIns.get(i).getStatus() == OrderStatus.DRAFT)
+            {
+                return walkIns.get(i);
+            }
+        }
+        return null;
+    }
+
+
+    /** Called once per command; sometimes a customer arrives. */
+    private void maybeArrive()
+    {
+        if (random.nextInt(100) >= 40)
+        {
+            return;
+        }
+
+        if (random.nextBoolean())
+        {
+            // Every car arrives outside the lane; it enters if there is room.
+            waitingCars.addLast(
+                new DriveThroughCustomer("Car " + carNumber, carNumber));
+            carNumber++;
+            admitWaitingCars();
         }
         else
         {
-            before = inStore.getCustomers().size();
-            inStore.remove();
-            after = inStore.getCustomers().size();
-        }
-
-        if (after < before)
-        {
-            display.displayMessage("Completed customer removed.");
-        }
-        else
-        {
-            display.displayMessage(
-                "No completed customer to remove. Use 2b to complete the next order.");
+            inStore.add(new Customer("Walk-in " + walkInNumber++));
+            display.displayMessage("A customer walked in.");
         }
     }
-}
+
+
+    /** Lets the next waiting car in if there is room and nobody is ordering. */
+    private void admitWaitingCars()
+    {
+        if (!waitingCars.isEmpty()
+            && !driveThrough.isFull()
+            && !hasUnorderedCar())
+        {
+            driveThrough.add(waitingCars.removeFirst());
+            display.displayMessage("A car pulled into the drive-through.");
+        }
+    }
+
+
+    /** Returns whether a car in the lane has not ordered yet. */
+    private boolean hasUnorderedCar()
+    {
+        List<Dri

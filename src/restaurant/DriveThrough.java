@@ -21,14 +21,15 @@ public class DriveThrough
                                                     // customers.
     private ArrayList<Observer> observers; // Holds observers for the drive
                                            // through.
-    private int totalCars; // Holds the total number of cars in queue
+    
+    /** The most cars the drive-through lane can hold. */
+    public static final int MAX_CARS = 5;
 
     // ~ Constructors ..........................................................
     public DriveThrough()
     {
         queue = new LinkedList<DriveThroughCustomer>();
         observers = new ArrayList<Observer>();
-        totalCars = 0;
     }
 
 
@@ -53,23 +54,19 @@ public class DriveThrough
             throw new IllegalArgumentException(
                 "Customer is already registered.");
         }
-
+        // The lane has a finite number of spots
+        if (isFull())
+        {
+            throw new IllegalStateException("The drive-through is full.");
+        }
         // Check if the customer has a valid car number
         if (customer.getCarNumber() < 0)
         {
             throw new IllegalArgumentException(
                 "Customer must have a valid car number.");
         }
-
-        // Check if the order is QUEUED
-        if (customer.getStatus() != OrderStatus.QUEUED)
-        {
-            throw new IllegalStateException("Customer's order must be QUEUED.");
-        }
-
-        // Add the customer to the queue and update totalCars
+        // Add the customer to the queue
         queue.add(customer);
-        totalCars++;
 
         // Notify observers of the change.
         notifyObservers();
@@ -82,13 +79,12 @@ public class DriveThrough
      */
     public void remove()
     {
-        for (DriveThroughCustomer customer : queue)
+        for (int i = 0; i < queue.size(); i++)
         {
-            if (customer.getStatus() == OrderStatus.COMPLETED)
+            if (queue.get(i).getStatus() == OrderStatus.COMPLETED)
             {
-                queue.remove(customer);
-                totalCars--;
-                notifyObserversRemove(); // Notify observers of the change.
+                queue.remove(i);
+                notifyObservers();
                 return;
             }
         }
@@ -106,13 +102,15 @@ public class DriveThrough
         // Returns a copy
         return new ArrayList<>(queue);
     }
-    
+
+
     /**
      * Returns the drive-through customer at the head of the line
      * 
-     * @return DriveThroughCustomer object 
+     * @return DriveThroughCustomer object
      */
-    public DriveThroughCustomer getHeadCustomer() {
+    public DriveThroughCustomer getHeadCustomer()
+    {
         return queue.peek();
     }
 
@@ -124,7 +122,17 @@ public class DriveThrough
      */
     public int getTotalCars()
     {
-        return totalCars;
+        return queue.size();
+    }
+    
+    /**
+     * Returns whether the lane has no free spot.
+     *
+     * @return true if the lane holds MAX_CARS cars
+     */
+    public boolean isFull()
+    {
+        return queue.size() >= MAX_CARS;
     }
 
 
@@ -162,17 +170,9 @@ public class DriveThrough
     {
         for (Observer observer : observers)
         {
-            observer.update(queue.getLast().getOrder());
-        }
-
-    }
-
-
-    public void notifyObserversRemove()
-    {
-        for (Observer observer : observers)
-        {
             observer.update(this);
         }
+
     }
+
 }

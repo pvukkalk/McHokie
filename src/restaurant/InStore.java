@@ -32,7 +32,7 @@ public class InStore
 
     // ~Public Methods ........................................................
     /**
-     * Registers an in-store customer whose order is QUEUED and calls update().
+     * Registers an in-store customer and calls notifies observers.
      * 
      * @param customer
      */
@@ -50,13 +50,6 @@ public class InStore
             throw new IllegalArgumentException(
                 "Customer is already registered in the queue");
         }
-
-        // throws exception if customer is not in QUEUED order status
-        if (customer.getStatus() != OrderStatus.QUEUED)
-        {
-            throw new IllegalArgumentException(
-                "Customer must have a QUEUED order to be added");
-        }
         queue.addLast(customer);
         notifyObservers(); // notify observers of the change
     }
@@ -68,14 +61,15 @@ public class InStore
      */
     public void remove()
     {
-        // Has no effect if no registered customer has a completed order.
-        if (queue.isEmpty()
-            || queue.peek().getStatus() != OrderStatus.COMPLETED)
+        for (int i = 0; i < queue.size(); i++)
         {
-            return;
+            if (queue.get(i).getStatus() == OrderStatus.COMPLETED)
+            {
+                queue.remove(i);
+                notifyObservers();
+                return;
+            }
         }
-        queue.removeFirst();
-        notifyObserversRemove(); // notify observers of the change
     }
 
 
@@ -94,13 +88,15 @@ public class InStore
         // Otherwise returns copy of queue
         return new ArrayList<Customer>(queue);
     }
-    
+
+
     /**
      * Returns the in-store customer at the head of the line
      * 
-     * @return InStore object 
+     * @return InStore object
      */
-    public Customer getHeadCustomer() {
+    public Customer getHeadCustomer()
+    {
         return queue.peek();
     }
 
@@ -141,19 +137,8 @@ public class InStore
         for (int i = 0; i < observers.size(); i++)
         {
             Observer observer = observers.get(i);
-            observer.update(queue.getLast().getOrder());
-        }
-
-    }
-
-
-    public void notifyObserversRemove()
-    {
-        for (int i = 0; i < observers.size(); i++)
-        {
-            Observer observer = observers.get(i);
             observer.update(this);
         }
-    }
 
+    }
 }
