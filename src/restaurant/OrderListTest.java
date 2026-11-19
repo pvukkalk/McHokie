@@ -19,8 +19,6 @@ import org.junit.jupiter.api.Test;
  *
  * @author Ayaan Deshmukh
  * @version Nov 12, 2026
- * @author Adam Bergmaier
- * @version Nov 18, 2026
  */
 public class OrderListTest
 {
@@ -215,17 +213,15 @@ public class OrderListTest
     }
 
 
-    /**
-     * Tests that enqueue sets QUEUED. dequeue only removes the order; it
-     * does not change its status.
-     */
+    /** Removing an order does not perform customer completion. */
     @Test
-    public void testStatusChanges()
+    public void testDequeueDoesNotCompleteOrder()
     {
         list.enqueue(orderA);
         assertEquals(OrderStatus.QUEUED, orderA.getStatus());
-        list.dequeue();
+        assertSame(orderA, list.dequeue());
         assertEquals(OrderStatus.QUEUED, orderA.getStatus());
+        assertTrue(list.isEmpty());
     }
 
 
@@ -393,23 +389,18 @@ public class OrderListTest
     }
 
 
-    /**
-     * Tests that update ignores notifications that are not an InStore or
-     * DriveThrough.
-     */
+    /** Unrelated update arguments do not modify or notify the queue. */
     @Test
-    public void testUpdateForwards()
+    public void testUpdateIgnoresUnrelatedObjects()
     {
         list.update("change");
+        list.update(null);
         assertEquals(0, observer.getCount());
-        assertNull(observer.getLastArg());
         assertEquals(0, list.size());
     }
 
 
-    /**
-     * Tests that InStore notifications reach OrderList observers.
-     */
+    /** A draft order is queued once when its customer is registered. */
     @Test
     public void testObservesInStore()
     {
@@ -417,11 +408,13 @@ public class OrderListTest
         inStore.addObserver(list);
         Customer sam = new Customer("Sam");
         sam.getOrder().addItem(new FoodItem("Cola", "Drink", 4, 5));
-        list.enqueue(sam.getOrder());
         inStore.add(sam);
-        // sam's order is already QUEUED, so update() queues nothing new
         assertEquals(1, observer.getCount());
+        assertSame(sam.getOrder(), list.peek());
+        assertSame(sam.getOrder(), observer.getLastArg());
+        inStore.notifyObservers();
         assertEquals(1, list.size());
+        assertEquals(1, observer.getCount());
     }
 
 
@@ -512,30 +505,30 @@ public class OrderListTest
     }
 
 
-    /**
-     * A customer whose order is still DRAFT can join the line (they wait
-     * at the kiosk to order).
-     */
+    /** An arriving customer may have an empty draft order. */
     @Test
-    public void testInStoreAddNotQueued()
+    public void testInStoreAcceptsArrivingCustomer()
     {
         Customer draft = new Customer("Sam");
-        assertDoesNotThrow(() -> storeInStore.add(draft));
-        assertEquals(1, storeInStore.getCustomers().size());
+        storeInStore.add(draft);
+        assertSame(draft, storeInStore.getHeadCustomer());
+        assertEquals(OrderStatus.DRAFT, draft.getStatus());
+        assertEquals(1, storeObserver.getCount());
     }
 
 
-    /**
-     * InStore does not reject a DriveThroughCustomer (it is a Customer).
-     */
+    /** A completed customer can leave while a draft customer stays. */
     @Test
-    public void testInStoreAddDriveThroughCustomer()
+    public void testInStoreRemovesCompletedBehindDraft()
     {
-        DriveThroughCustomer car = new DriveThroughCustomer("Jo", 1);
-        car.getOrder().addItem(storeBurger);
-        car.updateStatus(OrderStatus.QUEUED);
-        assertDoesNotThrow(() -> storeInStore.add(car));
+        Customer draft = new Customer("Waiting");
+        Customer completed = queuedCustomer("Done");
+        storeInStore.add(draft);
+        storeInStore.add(completed);
+        completed.updateStatus(OrderStatus.COMPLETED);
+        storeInStore.remove();
         assertEquals(1, storeInStore.getCustomers().size());
+        assertSame(draft, storeInStore.getHeadCustomer());
     }
 
 
@@ -684,29 +677,38 @@ public class OrderListTest
     }
 
 
-    /**
-     * DriveThrough itself does not check for duplicate car numbers.
-     */
+    /** The sixth arriving car is rejected until a lane slot is freed. */
     @Test
-    public void testDriveThroughAddDuplicateCarNumber()
+    public void testDriveThroughCapacity()
     {
-        driveDriveThrough.add(queuedCar("Jo", 4));
-        assertDoesNotThrow(() ->
-            driveDriveThrough.add(queuedCar("Max", 4)));
-        assertEquals(2, driveDriveThrough.getTotalCars());
+        for (int i = 1; i <= DriveThrough.MAX_CARS; i++)
+        {
+            driveDriveThrough.add(new DriveThroughCustomer("Car " + i, i));
+        }
+        assertTrue(driveDriveThrough.isFull());
+        assertThrows(IllegalStateException.class, () ->
+            driveDriveThrough.add(new DriveThroughCustomer("Extra", 6)));
+        assertEquals(DriveThrough.MAX_CARS, driveDriveThrough.getTotalCars());
+        DriveThroughCustomer head = driveDriveThrough.getHeadCustomer();
+        head.getOrder().addItem(driveFries);
+        head.updateStatus(OrderStatus.QUEUED);
+        head.updateStatus(OrderStatus.COMPLETED);
+        driveDriveThrough.remove();
+        assertFalse(driveDriveThrough.isFull());
+        driveDriveThrough.add(new DriveThroughCustomer("Extra", 6));
+        assertTrue(driveDriveThrough.isFull());
     }
 
 
-    /**
-     * A customer whose order is still DRAFT can join the lane (they order
-     * at the order point).
-     */
+    /** A new car arrives before its order is taken. */
     @Test
-    public void testDriveThroughAddNotQueued()
+    public void testDriveThroughAcceptsArrivingCustomer()
     {
-        assertDoesNotThrow(() ->
-            driveDriveThrough.add(new DriveThroughCustomer("Jo", 1)));
+        DriveThroughCustomer draft = new DriveThroughCustomer("Jo", 1);
+        driveDriveThrough.add(draft);
+        assertSame(draft, driveDriveThrough.getHeadCustomer());
         assertEquals(1, driveDriveThrough.getTotalCars());
+        assertEquals(OrderStatus.DRAFT, draft.getStatus());
         assertEquals(1, driveObserver.getCount());
     }
 
@@ -782,76 +784,100 @@ public class OrderListTest
         assertEquals(1, driveObserver.getCount());
     }
 
+    /** Two active cars cannot share a number, but a departed number is reusable. */
+    @Test
+    public void testRejectDuplicateActiveCarNumber()
+    {
+        DriveThroughCustomer first = queuedCar("Jo", 4);
+        driveDriveThrough.add(first);
+        assertThrows(IllegalArgumentException.class, () ->
+            driveDriveThrough.add(queuedCar("Max", 4)));
+        assertEquals(1, driveDriveThrough.getTotalCars());
+        assertEquals(1, driveObserver.getCount());
+        first.updateStatus(OrderStatus.COMPLETED);
+        driveDriveThrough.remove();
+        assertDoesNotThrow(() -> driveDriveThrough.add(queuedCar("Max", 4)));
+        assertEquals(1, driveDriveThrough.getTotalCars());
+    }
+
     // ~ HandleInput controller ............................................
 
     /**
-     * Runs the controller on the given console input.
-     *
-     * @param input
-     *            the lines the user would type
-     * @return everything printed during the run
+     * Builds a controller with reproducible arrivals. Production code is
+     * unchanged; reflection is needed because it has no Random constructor.
+     * @param text simulated console input
+     * @param arrivals random source for the arrival simulation
+     * @return a controller reading the supplied input
      */
-    private String runWith(String input)
+    private HandleInput controller(String text, java.util.Random arrivals)
     {
-        setInput(input);
-        HandleInput controller = new HandleInput(
-            appMenu,
-            appInventory,
-            appOrderList,
-            appInStore,
-            appDriveThrough,
-            appDisplay);
+        setInput(text);
+        HandleInput controller = new HandleInput(appMenu, appInventory,
+            appOrderList, appInStore, appDriveThrough, appDisplay);
+        try
+        {
+            java.lang.reflect.Field field =
+                HandleInput.class.getDeclaredField("random");
+            field.setAccessible(true);
+            field.set(controller, arrivals);
+        }
+        catch (ReflectiveOperationException exception)
+        {
+            throw new AssertionError("Cannot control test arrivals", exception);
+        }
+        return controller;
+    }
+
+    /** A random source that prevents incidental customer arrivals. */
+    private static class NoArrivals extends java.util.Random
+    {
+        @Override
+        public int nextInt(int bound)
+        {
+            return bound - 1;
+        }
+    }
+
+    /** Runs console input without incidental arrivals. */
+    private String runWith(String text)
+    {
+        HandleInput controller = controller(text, new NoArrivals());
         clearOutput();
         controller.run();
         return output();
     }
 
-
-    /**
-     * Returns the starting appMenu item at a appMenu number starting at 1.
-     *
-     * @param number
-     *            the appMenu number
-     * @return the food item
-     */
+    /** Returns a menu item using its displayed number. */
     private FoodItem item(int number)
     {
         return appMenu.getMenu().get(number - 1);
     }
 
-
-    /**
-     * Tests that any null parameter throws IllegalArgumentException.
-     */
+    /** Every null model or view is rejected by the controller constructor. */
     @Test
     public void testControllerConstructorNull()
     {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new HandleInput(
-            null,
-            appInventory,
-            appOrderList,
-            appInStore,
-            appDriveThrough,
-            appDisplay);
-        });
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            new HandleInput(
-            appMenu,
-            appInventory,
-            appOrderList,
-            appInStore,
-            appDriveThrough,
-            null);
-        });
+        assertThrows(IllegalArgumentException.class, () ->
+            new HandleInput(null, appInventory, appOrderList, appInStore,
+                appDriveThrough, appDisplay));
+        assertThrows(IllegalArgumentException.class, () ->
+            new HandleInput(appMenu, null, appOrderList, appInStore,
+                appDriveThrough, appDisplay));
+        assertThrows(IllegalArgumentException.class, () ->
+            new HandleInput(appMenu, appInventory, null, appInStore,
+                appDriveThrough, appDisplay));
+        assertThrows(IllegalArgumentException.class, () ->
+            new HandleInput(appMenu, appInventory, appOrderList, null,
+                appDriveThrough, appDisplay));
+        assertThrows(IllegalArgumentException.class, () ->
+            new HandleInput(appMenu, appInventory, appOrderList, appInStore,
+                null, appDisplay));
+        assertThrows(IllegalArgumentException.class, () ->
+            new HandleInput(appMenu, appInventory, appOrderList, appInStore,
+                appDriveThrough, null));
     }
 
-
-    /**
-     * Tests that option 6 exits and the starting appMenu is loaded with 20 of
-     * each item.
-     */
+    /** Exit initializes five stocked items and ends normally. */
     @Test
     public void testControllerExit()
     {
@@ -863,358 +889,365 @@ public class OrderListTest
         assertEquals(20, appInventory.getStock(item(1)));
     }
 
-
-    /**
-     * Tests that end-of-input exits the loop.
-     */
+    /** End-of-input exits without creating an order. */
     @Test
     public void testControllerEndOfInput()
     {
-        String out = runWith("");
-        assertTrue(out.contains("Program ended."));
+        assertTrue(runWith("").contains("Program ended."));
+        assertTrue(appOrderList.isEmpty());
     }
 
-
-    /**
-     * Tests that an invalid or blank option prints an error and
-     * reprompts.
-     */
+    /** An unknown command produces feedback and the loop continues. */
     @Test
     public void testControllerInvalidOption()
     {
-        String out = runWith("9\n\nabc\n6\n");
+        String out = runWith("bad\n6\n");
         assertTrue(out.contains("Invalid option."));
         assertTrue(out.contains("Program ended."));
     }
 
-
-    /**
-     * Tests the appDisplay-only options.
-     */
-    /**@Test
+    /** Display commands render the current diagrams and stock. */
+    @Test
     public void testControllerDisplayOptions()
     {
         String out = runWith("1\n2\n3\n4\n5\n6\n");
         assertTrue(out.contains("1. Burger - $7.00"));
         assertTrue(out.contains("There are no queued orders."));
-        assertTrue(out.contains("There are no drive-through customers."));
-        assertTrue(out.contains("There are no in-store customers."));
+        assertTrue(out.contains("Drive-Through (0/5 cars)"));
+        assertTrue(out.contains("In-Store (0 customers)"));
         assertTrue(out.contains("Burger: 20"));
     }
-*/
 
-    /**
-     * Tests placing an in-store order: it is queued, the customer is
-     * registered, and stock drops by exactly one.
-     */
-    /**@Test
+    /** Taking an order when no customer has arrived leaves the queue empty. */
+    @Test
+    public void testControllerNoCustomerReady()
+    {
+        assertTrue(runWith("2a\n6\n")
+            .contains("No customer is ready to order."));
+        assertTrue(appOrderList.isEmpty());
+    }
+
+    /** A waiting walk-in submits an order and stock is deducted once. */
+    @Test
     public void testControllerInStoreOrder()
     {
-        String out = runWith("4a\nSam\n1\n0\n6\n");
+        Customer customer = new Customer("Waiting");
+        appInStore.add(customer);
+        String out = runWith("2a\nSam\n1\n0\n6\n");
         assertTrue(out.contains("Added: Burger"));
         assertTrue(out.contains("Queue position: 1"));
         assertEquals(1, appOrderList.size());
-        assertEquals(1, appInStore.getCustomers().size());
-        assertEquals("Sam", appInStore.getCustomers().get(0).getName());
+        assertSame(customer.getOrder(), appOrderList.peek());
+        assertEquals("Sam", customer.getName());
+        assertEquals("Sam", customer.getOrder().getCustomerName());
+        assertEquals("IS", customer.getOrder().getType());
+        assertEquals(OrderStatus.QUEUED, customer.getStatus());
         assertEquals(19, appInventory.getStock(item(1)));
     }
-*/
 
-    /**
-     * Tests placing a drive-through order with two of the same item.
-     */
-    /**@Test
+    /** A waiting car keeps its car number while ordering multiple servings. */
+    @Test
     public void testControllerDriveThroughOrder()
     {
-        runWith("3a\nJo\n5\n2\n2\n0\n6\n");
+        DriveThroughCustomer car = new DriveThroughCustomer("Waiting", 5);
+        appDriveThrough.add(car);
+        runWith("2a\nJo\n2\n2\n0\n6\n");
         assertEquals(1, appDriveThrough.getTotalCars());
-        DriveThroughCustomer jo = appDriveThrough.getCustomers().get(0);
-        assertEquals(5, jo.getCarNumber());
-        assertEquals(OrderStatus.QUEUED, jo.getStatus());
-        assertEquals(10.0, jo.getOrder().getTotalPrice(), 0.001);
+        assertEquals(5, car.getCarNumber());
+        assertEquals(OrderStatus.QUEUED, car.getStatus());
+        assertEquals("DT", car.getOrder().getType());
+        assertEquals(10.0, car.getOrder().getTotalPrice(), 0.001);
         assertEquals(18, appInventory.getStock(item(2)));
     }
-*/
 
-    /**
-     * Tests that option 2a asks for a customer type and rejects bad
-     * choices.
-     */
-    /**@Test
-    public void testControllerChooseCustomerType()
+    /** A waiting drive-through customer receives ordering priority. */
+    @Test
+    public void testControllerDriveThroughPriority()
     {
-        String out = runWith("2a\n3\n1\nSam\n3\n0\n2a\n2\nJo\n7\n4\n0\n6\n");
-        assertTrue(out.contains("Please choose 1 or 2."));
-        assertEquals(1, appInStore.getCustomers().size());
-        assertEquals(1, appDriveThrough.getTotalCars());
-        assertEquals(2, appOrderList.size());
+        Customer walkIn = new Customer("Waiting");
+        DriveThroughCustomer car = new DriveThroughCustomer("Car", 1);
+        appInStore.add(walkIn);
+        appDriveThrough.add(car);
+        runWith("2a\nJo\n1\n0\n6\n");
+        assertSame(car.getOrder(), appOrderList.peek());
+        assertEquals(OrderStatus.DRAFT, walkIn.getStatus());
+        assertEquals(OrderStatus.QUEUED, car.getStatus());
     }
-*/
 
-    /**
-     * Tests that a car number already in use is rejected.
-     */
-   /** @Test
-    public void testControllerDuplicateCarNumber()
-    {
-        String out = runWith("3a\nJo\n5\n1\n0\n3a\nMax\n5\n6\n");
-        assertTrue(out.contains("That car number is already in use."));
-        assertEquals(1, appDriveThrough.getTotalCars());
-        assertEquals(1, appOrderList.size());
-    }
-*/
-
-    /**
-     * Tests bad input while building an order and cancelling it. Nothing
-     * is queued and stock is unchanged.
-     */
-    /**@Test
+    /** Invalid selections and an empty submission can be cancelled safely. */
+    @Test
     public void testControllerBadItemInputAndCancel()
     {
-        String out = runWith("4a\nSam\nabc\n99\n0\n1\ncancel\n6\n");
+        Customer customer = new Customer("Waiting");
+        appInStore.add(customer);
+        String out = runWith("2a\nSam\nabc\n99\n-1\n0\ncancel\n6\n");
         assertTrue(out.contains("Please enter a valid item number."));
         assertTrue(out.contains("That item number is not on the menu."));
         assertTrue(out.contains("Cannot submit an empty order."));
         assertTrue(out.contains("Order cancelled."));
-        assertEquals(0, appOrderList.size());
-        assertEquals(0, appInStore.getCustomers().size());
+        assertTrue(appOrderList.isEmpty());
+        assertTrue(customer.getOrder().isEmpty());
+        assertEquals(OrderStatus.DRAFT, customer.getStatus());
         assertEquals(20, appInventory.getStock(item(1)));
     }
-*/
 
-    /**
-     * Tests that a blank customer name reprompts.
-     */
-    /**@Test
+    /** A blank name is retried before accepting an order. */
+    @Test
     public void testControllerBlankName()
     {
-        String out = runWith("4a\n\nSam\n1\n0\n6\n");
+        Customer customer = new Customer("Waiting");
+        appInStore.add(customer);
+        String out = runWith("2a\n \nSam\n1\n0\n6\n");
         assertTrue(out.contains("Please enter nonblank text."));
-        assertEquals(1, appInStore.getCustomers().size());
+        assertEquals("Sam", customer.getName());
+        assertEquals(1, appOrderList.size());
     }
-*/
 
-    /**
-     * Tests that an item cannot be added past the available stock.
-     */
-   /** @Test
+    /** An unavailable item is rejected, but another item can be ordered. */
+    @Test
     public void testControllerOutOfStockItem()
     {
-        String out = runWith("5b\n1\n19\n4a\nSam\n1\n1\n0\n6\n");
+        Customer customer = new Customer("Waiting");
+        appInStore.add(customer);
+        String out = runWith("5b\n1\n20\n2a\nSam\n1\n2\n0\n6\n");
         assertTrue(out.contains("Stock removed."));
         assertTrue(out.contains("Not enough stock for Burger"));
-        assertEquals(1, appInStore.getCustomers().get(0)
-            .getOrder().getItems().size());
+        assertEquals(1, customer.getOrder().getItems().size());
+        assertSame(item(2), customer.getOrder().getItems().get(0));
+        assertEquals(0, appInventory.getStock(item(1)));
+        assertEquals(19, appInventory.getStock(item(2)));
+    }
+
+    /** Repeated selections cannot reserve more than the available stock. */
+    @Test
+    public void testControllerRepeatedSelectionStockLimit()
+    {
+        Customer customer = new Customer("Waiting");
+        appInStore.add(customer);
+        String out = runWith("5b\n1\n19\n2a\nSam\n1\n1\n0\n6\n");
+        assertTrue(out.contains("Not enough stock for Burger"));
+        assertEquals(1, customer.getOrder().getItems().size());
         assertEquals(0, appInventory.getStock(item(1)));
     }
-*/
 
-    /**
-     * Tests completing the next order: the queue empties and the customer
-     * leaves.
-     */
-   /**@Test
+    /** Completing an order updates status and removes its customer. */
+    @Test
     public void testControllerCompleteNextOrder()
     {
-        String out = runWith("4a\nSam\n1\n0\n2b\n6\n");
-        assertTrue(out.contains("The next order is completed."));
+        Customer customer = new Customer("Waiting");
+        appInStore.add(customer);
+        String out = runWith("2a\nSam\n1\n0\n2b\n6\n");
+        assertTrue(out.contains("Order completed."));
+        assertEquals(OrderStatus.COMPLETED, customer.getStatus());
         assertTrue(appOrderList.isEmpty());
-        assertEquals(0, appInStore.getCustomers().size());
+        assertTrue(appInStore.getCustomers().isEmpty());
+        assertEquals(19, appInventory.getStock(item(1)));
     }
-*/
 
-    /**
-     * Tests that mixed orders are completed in the order they were placed.
-     */
-    /**@Test
+    /** Mixed orders keep FIFO completion order and report positions. */
+    @Test
     public void testControllerMixedOrdersFifo()
     {
-        runWith("3a\nJo\n5\n1\n0\n4a\nSam\n2\n0\n2b\n6\n");
+        Customer walkIn = new Customer("Waiting");
+        DriveThroughCustomer car = new DriveThroughCustomer("Car", 1);
+        appInStore.add(walkIn);
+        appDriveThrough.add(car);
+        String out = runWith(
+            "2a\nJo\n1\n0\n2a\nSam\n2\n0\n2\n2b\n6\n");
+        assertTrue(out.contains("Jo: queue position 1"));
+        assertTrue(out.contains("Sam: queue position 2"));
+        assertEquals(OrderStatus.COMPLETED, car.getStatus());
         assertEquals(0, appDriveThrough.getTotalCars());
         assertEquals(1, appInStore.getCustomers().size());
         assertEquals(1, appOrderList.size());
+        assertSame(walkIn.getOrder(), appOrderList.peek());
+        assertEquals(1, appOrderList.getPosition(walkIn.getOrder()));
     }
-*/
 
-    /**
-     * Spec: completing an order with an empty queue prints "No orders to
-     * be fulfilled."
-     */
-   /** @Test
+    /** Completing an empty queue produces the current feedback. */
+    @Test
     public void testControllerCompleteEmptyQueue()
     {
-        String out = runWith("2b\n6\n");
-        assertTrue(out.contains("No orders to be fulfilled."));
+        assertTrue(runWith("2b\n6\n").contains("There are no queued orders."));
+        assertTrue(appOrderList.isEmpty());
     }
-*/
 
-    /**
-     * Tests that option 2 shows each active customer's position.
-     */
-    /**@Test
-    public void testControllerShowPositions()
-    {
-        String out = runWith("4a\nSam\n1\n0\n3a\nJo\n2\n1\n0\n2\n6\n");
-        assertTrue(out.contains("Sam: queue position 1"));
-        assertTrue(out.contains("Jo: queue position 2"));
-    }
-*/
-
-    /**
-     * Tests that 3b and 4b report when no completed customer exists.
-     */
-    /**@Test
-    public void testControllerRemoveCompletedNone()
-    {
-        String out = runWith("3b\n4b\n6\n");
-        assertTrue(out.contains("No completed customer to remove."));
-    }
-*/
-
-    /**
-     * Tests adding stock, including bad number input.
-     */
+    /** Stock input retries invalid integers and nonpositive quantities. */
     @Test
     public void testControllerAddStock()
     {
-        String out = runWith("5a\n1\nxyz\n-2\n5\n6\n");
+        String out = runWith("5a\n1\nabc\n0\n-1\n5\n6\n");
         assertTrue(out.contains("Please enter a valid whole number."));
         assertTrue(out.contains("Please enter a number greater than zero."));
         assertTrue(out.contains("Stock added."));
         assertEquals(25, appInventory.getStock(item(1)));
     }
 
-
-    /**
-     * Tests that a bad appMenu number reprompts when choosing an item.
-     */
+    /** Out-of-range item input is retried. */
     @Test
     public void testControllerSelectItemOutOfRange()
     {
-        String out = runWith("5a\n9\n1\n1\n6\n");
+        String out = runWith("5a\n99\n1\n1\n6\n");
         assertTrue(out.contains("That item number is not on the menu."));
         assertEquals(21, appInventory.getStock(item(1)));
     }
 
-
-    /**
-     * Tests that removing more stock than exists changes nothing.
-     */
+    /** Removing too much stock leaves inventory unchanged. */
     @Test
     public void testControllerRemoveTooMuchStock()
     {
-        String out = runWith("5b\n1\n50\n6\n");
+        String out = runWith("5b\n1\n21\n6\n");
         assertTrue(out.contains("Inventory was not changed."));
         assertEquals(20, appInventory.getStock(item(1)));
     }
 
-
-    /**
-     * Tests adding a appMenu item. It starts with no stock.
-     */
+    /** A new menu entry is registered with zero stock. */
     @Test
     public void testControllerAddMenuItem()
     {
-        String out = runWith("1a\nTaco\nFood\n3\n6\n");
+        String out = runWith("1a\nTaco\nFood\n6\n6\n");
         assertTrue(out.contains("Menu item added."));
         assertEquals(6, appMenu.getMenu().size());
         assertEquals("Taco", item(6).getName());
         assertEquals(0, appInventory.getStock(item(6)));
     }
 
-
-    /**
-     * Tests that a appMenu item with an existing name is rejected, ignoring
-     * case.
-     */
+    /** The controller rejects duplicate menu names ignoring case. */
     @Test
     public void testControllerAddDuplicateMenuItem()
     {
-        String out = runWith("1a\nburger\n6\n");
-        assertTrue(out.contains("That item is already on the menu."));
+        assertTrue(runWith("1a\nburger\n6\n")
+            .contains("That item is already on the menu."));
         assertEquals(5, appMenu.getMenu().size());
     }
 
-
-    /**
-     * Tests removing a appMenu item.
-     */
+    /** Removing a menu item preserves the remaining entries. */
     @Test
     public void testControllerRemoveMenuItem()
     {
-        String out = runWith("1b\n1\n6\n");
-        assertTrue(out.contains("Menu item removed."));
+        assertTrue(runWith("1b\n1\n6\n").contains("Menu item removed."));
         assertEquals(4, appMenu.getMenu().size());
         assertEquals("Fries", item(1).getName());
     }
 
-
-    /**
-     * Tests that running twice does not load the starting appMenu twice.
-     */
+    /** Reusing a controller does not seed duplicate menu entries. */
     @Test
     public void testControllerRunTwice()
     {
-        setInput("6\n6\n");
-        HandleInput controller = new HandleInput(
-            appMenu,
-            appInventory,
-            appOrderList,
-            appInStore,
-            appDriveThrough,
-            appDisplay);
+        HandleInput controller = controller("6\n6\n", new NoArrivals());
         controller.run();
         controller.run();
         assertEquals(5, appMenu.getMenu().size());
+        assertEquals(20, appInventory.getStock(item(1)));
     }
 
-
-    /**
-     * Tests that end-of-input in the middle of an order exits cleanly
-     * without queuing anything.
-     */
-    /**@Test
+    /** EOF during selection discards the unfinished order. */
+    @Test
     public void testControllerEndOfInputMidOrder()
     {
-        String out = runWith("4a\nSam\n1\n");
+        Customer customer = new Customer("Waiting");
+        appInStore.add(customer);
+        String out = runWith("2a\nSam\n1\n");
         assertTrue(out.contains("Order cancelled."));
         assertTrue(out.contains("Program ended."));
-        assertEquals(0, appOrderList.size());
-    }*/
+        assertTrue(appOrderList.isEmpty());
+        assertTrue(customer.getOrder().isEmpty());
+        assertEquals(20, appInventory.getStock(item(1)));
+    }
+
+    /** EOF while entering the name leaves the arriving customer in DRAFT. */
+    @Test
+    public void testControllerEndOfInputAtName()
+    {
+        Customer customer = new Customer("Waiting");
+        appInStore.add(customer);
+        assertTrue(runWith("2a\n").contains("Program ended."));
+        assertEquals("Waiting", customer.getName());
+        assertEquals(OrderStatus.DRAFT, customer.getStatus());
+        assertTrue(appOrderList.isEmpty());
+    }
+
+    /** A controlled arrival enters the lane before the next command. */
+    @Test
+    public void testControllerCarArrival()
+    {
+        java.util.Random arrival = new java.util.Random()
+        {
+            @Override
+            public int nextInt(int bound) { return 0; }
+            @Override
+            public boolean nextBoolean() { return true; }
+        };
+        controller("6\n", arrival).run();
+        assertEquals(1, appDriveThrough.getTotalCars());
+        assertEquals(1, appDriveThrough.getHeadCustomer().getCarNumber());
+        assertEquals(OrderStatus.DRAFT,
+            appDriveThrough.getHeadCustomer().getStatus());
+        assertTrue(appOrderList.isEmpty());
+    }
+
+    /** A controlled walk-in arrival is registered before taking an order. */
+    @Test
+    public void testControllerWalkInArrival()
+    {
+        java.util.Random arrival = new java.util.Random()
+        {
+            @Override
+            public int nextInt(int bound) { return 0; }
+            @Override
+            public boolean nextBoolean() { return false; }
+        };
+        controller("6\n", arrival).run();
+        assertEquals(1, appInStore.getCustomers().size());
+        assertEquals("Walk-in 1", appInStore.getHeadCustomer().getName());
+        assertTrue(appOrderList.isEmpty());
+    }
 
     // ~ Main ..............................................................
 
-    /**
-     * Tests that main starts the program and exits on option 6.
-     */
+    /** Main starts and exits; random arrivals do not affect this assertion. */
     @Test
     public void testMainExits()
     {
         setInput("6\n");
         Main.main(new String[0]);
-        String out = output();
-        assertTrue(out.contains("=== Options Menu ==="));
-        assertTrue(out.contains("Program ended."));
+        assertTrue(output().contains("=== Options Menu ==="));
+        assertTrue(output().contains("Program ended."));
     }
 
-
-    /**
-     * Full run: place a drive-through order and an in-store order, view
-     * the queue, then complete both. The queue empties at the end.
-     */
-   /** @Test
-    public void testMainFullRun()
+    /** Main handles EOF independently of whether a random arrival occurs. */
+    @Test
+    public void testMainEndOfInput()
     {
-        setInput(
-            "3a\nJo\n5\n1\n0\n4a\nSam\n2\n0\n2\n2b\n2b\n2\n2b\n6\n");
+        setInput("");
         Main.main(new String[0]);
-        String out = output();
-        assertTrue(out.contains("Jo: queue position 1"));
-        assertTrue(out.contains("Sam: queue position 2"));
-        assertTrue(out.contains("There are no queued orders."));
-        assertTrue(out.contains("Program ended."));
+        assertTrue(output().contains("1. Burger - $7.00"));
+        assertTrue(output().contains("Program ended."));
     }
-*/
+
+
+    /** Order numbers keep increasing even after earlier orders leave. */
+    @Test
+    public void testOrderNumbersIncrease()
+    {
+        list.enqueue(orderA);
+        list.enqueue(orderB);
+        assertEquals(1, orderA.getNumber());
+        assertEquals(2, orderB.getNumber());
+        list.dequeue();
+        list.enqueue(orderC);
+        assertEquals(3, orderC.getNumber());
+    }
+
+    /** A rejected submission does not consume an order number. */
+    @Test
+    public void testInvalidOrderDoesNotConsumeNumber()
+    {
+        assertThrows(IllegalArgumentException.class, () -> list.enqueue(new Order()));
+        list.enqueue(orderA);
+        assertEquals(1, orderA.getNumber());
+    }
+
     // ----------------------------------------------------------
     /**
      * Test helper that counts how many times it has been notified.
