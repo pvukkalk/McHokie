@@ -8,7 +8,7 @@ import java.util.List;
  * @author adambergmaier
 * @version Nov 10, 2026
  * @author Houyue Chen
- * @version Nov 12, 2026
+ * @version Nov 19, 2026
  */
 public class Display implements Observer {
 
@@ -227,6 +227,7 @@ public class Display implements Observer {
         System.out.println("\t 1b. Remove Item from Menu");
 
         System.out.println("2. Display Order Queue");
+        System.out.println("\t 2a. Create Customer Order");
         System.out.println("\t 2b. Remove Order from Queue");
 
         System.out.println("3. Display Drive-Through Customers");
