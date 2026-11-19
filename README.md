@@ -9,8 +9,7 @@
 #### What changed from your D3 plan?
 - We added a string field to orders that flags whether it's an order from drive through or in store. Additionally, we changed update methods, car numbers are now ordered, and implemented a drive through and restaurant display. 
 #### What doesn't work yet? 
-- Some of our test cases are failing.
-- Writing JUNit tests for the model separately from the console input and output.
+- Full manual MVP testing is still needed.
 ---
 ## Next Steps
 ### Deliverable 4:
@@ -31,7 +30,7 @@
 | :--- | :--- | :--- |
 | **Customer.java** | Alex Chen | Implemented customer name validation, order creation, and methods for accessing the order and its status. |
 | **Display.java** | Alex Chen | Implemented console output for the menu, orders, customers, and inventory; added Observer updates and refresh behavior. |
-| **DriveThrough.java** | Preeti Vukkalkar | Wrote fields, constructor, public methods and Observable interface methods. |
+| **DriveThrough.java** | Preeti Vukkalkar/Alex Chen | Preeti implemented the class; Alex added duplicate active car-number validation. |
 | **DriveThroughCustomer.java** | Alex Chen | Implemented Customer inheritance, car number validation, and restrictions on changing car numbers after submission. |
  **FoodItem.java** | Adam Bergmaier | Wrote fields, constructor, and public methods |
 | **HandleInput.java** | Adam Bergmaier/Houyue Chen | Adam wrote fields, constructor, and began run method, Houyue used GenAI assistance to write public methods and exception handling |
@@ -44,7 +43,7 @@
 | **OrderList.java** | Preeti Vukkalkar/Alex Chen | Wrote fields, constructor, public methods, Observable and Observer interface methods. |
 | **OrderStatus.java** | Houyue Chen | Defined the DRAFT, QUEUED, and COMPLETED order statuses. |
 | **Observerable.java** | Adam Bergmaier | Wrote interface |
-| **JUnit Testing**| Ayaan Deshmukh | Created test classes for all classes that needeed it. Test each one for coverage and fuctionality, not fully functional just yet |
+| **JUnit Testing** | Ayaan Deshmukh/Adam Bergmaier/Alex Chen | Ayaan created the original tests, Adam revised tests and identified unresolved failures, and Alex updated obsolete tests, restored core workflow coverage, and verified all 172 tests locally. |
 ---
 ## GenAI Note
 - GenAI was used to identify complications in our files, which we referenced to correct any errors so that our application runs smoothly.
