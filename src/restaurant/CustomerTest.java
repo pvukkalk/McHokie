@@ -215,4 +215,56 @@ public class CustomerTest
             dtCustomer.setCarNumber(9));
         assertEquals(3, dtCustomer.getCarNumber());
     }
+
+    /** A draft customer may change its name. */
+    @Test
+    public void testSetName()
+    {
+        customer.setName("Alex");
+        assertEquals("Alex", customer.getName());
+    }
+
+    /** Invalid replacement names preserve the original name. */
+    @Test
+    public void testSetNameInvalid()
+    {
+        assertThrows(IllegalArgumentException.class, () -> customer.setName(null));
+        assertThrows(IllegalArgumentException.class, () -> customer.setName("  "));
+        assertEquals("Sam", customer.getName());
+    }
+
+    /** Queued and completed customers cannot be renamed. */
+    @Test
+    public void testSetNameAfterSubmission()
+    {
+        customer.getOrder().addItem(burger);
+        customer.updateStatus(OrderStatus.QUEUED);
+        assertThrows(IllegalStateException.class, () -> customer.setName("Alex"));
+        customer.updateStatus(OrderStatus.COMPLETED);
+        assertThrows(IllegalStateException.class, () -> customer.setName("Alex"));
+        assertEquals("Sam", customer.getName());
+    }
+
+    /** A null replacement order leaves the original order intact. */
+    @Test
+    public void testSetOrderNull()
+    {
+        Order original = customer.getOrder();
+        assertThrows(IllegalArgumentException.class, () -> customer.setOrder(null));
+        assertSame(original, customer.getOrder());
+    }
+
+    /** A submitted order cannot be replaced. */
+    @Test
+    public void testSetOrderAfterSubmission()
+    {
+        Order original = customer.getOrder();
+        original.addItem(burger);
+        customer.updateStatus(OrderStatus.QUEUED);
+        assertThrows(IllegalStateException.class, () -> customer.setOrder(new Order()));
+        customer.updateStatus(OrderStatus.COMPLETED);
+        assertThrows(IllegalStateException.class, () -> customer.setOrder(new Order()));
+        assertSame(original, customer.getOrder());
+    }
+
 }
