@@ -54,6 +54,13 @@ public class DriveThrough
             throw new IllegalArgumentException(
                 "Customer is already registered.");
         }
+        for (DriveThroughCustomer existing : queue)
+        {
+            if (existing.getCarNumber() == customer.getCarNumber())
+            {
+                throw new IllegalArgumentException("Car number is already in use.");
+            }
+        }
         // The lane has a finite number of spots
         if (isFull())
         {
@@ -176,3 +183,4 @@ public class DriveThrough
     }
 
 }
+
