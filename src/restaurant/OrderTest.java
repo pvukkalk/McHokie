@@ -226,4 +226,32 @@ public class OrderTest
             OrderStatus.COMPLETED,
             OrderStatus.valueOf("COMPLETED"));
     }
+
+    /** Metadata is retained for order cards in the display. */
+    @Test
+    public void testOrderMetadata()
+    {
+        assertEquals(0, order.getNumber());
+        assertEquals("", order.getCustomerName());
+        assertEquals("", order.getType());
+        order.setNumber(12);
+        order.setCustomerName("Alex");
+        order.setType("DT");
+        assertEquals(12, order.getNumber());
+        assertEquals("Alex", order.getCustomerName());
+        assertEquals("DT", order.getType());
+    }
+
+    /** Item snapshots are unmodifiable and do not grow with the order. */
+    @Test
+    public void testItemsSnapshotContract()
+    {
+        order.addItem(burger);
+        List<FoodItem> snapshot = order.getItems();
+        assertThrows(UnsupportedOperationException.class, () -> snapshot.clear());
+        order.addItem(cola);
+        assertEquals(1, snapshot.size());
+        assertEquals(2, order.getItems().size());
+    }
+
 }
