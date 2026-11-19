@@ -179,4 +179,16 @@ public class FoodItemTest
         assertThrows(IllegalArgumentException.class, () ->
             new FoodItem("Burger", "Food", -1));
     }
+    /** The stock constructor validates its item details and quantity. */
+    @Test
+    public void testStockConstructorValidation()
+    {
+        assertThrows(IllegalArgumentException.class, () -> new FoodItem(null, "Food", 5, 1));
+        assertThrows(IllegalArgumentException.class, () -> new FoodItem(" ", "Food", 5, 1));
+        assertThrows(IllegalArgumentException.class, () -> new FoodItem("Burger", null, 5, 1));
+        assertThrows(IllegalArgumentException.class, () -> new FoodItem("Burger", " ", 5, 1));
+        assertThrows(IllegalArgumentException.class, () -> new FoodItem("Burger", "Food", -1, 1));
+        assertThrows(IllegalArgumentException.class, () -> new FoodItem("Burger", "Food", 5, -1));
+    }
+
 }
