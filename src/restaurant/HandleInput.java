@@ -8,7 +8,7 @@ import java.util.Scanner;
  *
  * @author adambergmaier
  * @version Nov 10, 2026
- * @author Houyue Chen
+ * @author Houyue Chenprivate void completeNextOrder()
  * @version Nov 12, 2026
  */
 public class HandleInput
@@ -586,28 +586,27 @@ public class HandleInput
         }
     }
 
-
-    /** Completes the FIFO head and lets its customer leave. */
+    /**
+     * Completes and removes the earliest queued order, then removes
+     * completed customers from their customer lines.
+     */
     private void completeNextOrder()
     {
-        Order completed = orderList.peek();
+        // dequeue() returns null when the shared queue is empty.
+        // Otherwise, it marks the earliest order COMPLETED and removes it.
+        Order completed = orderList.dequeue();
+
         if (completed == null)
         {
-            display.displayMessage("There are no queued orders.");
+            display.displayMessage("No orders to be fulfilled.");
             return;
         }
-        else if (completed.equals(driveThrough.getHeadCustomer().getOrder()))
-        {
-            driveThrough.getHeadCustomer().getOrder()
-                .updateStatus(OrderStatus.COMPLETED);
-            driveThrough.remove();
-        }
-        else
-        {
-            inStore.getHeadCustomer().getOrder()
-                .updateStatus(OrderStatus.COMPLETED);
-            inStore.remove();
-        }
+
+        // Each remove() method safely handles an empty customer line
+        // and removes only a customer with a COMPLETED order.
+        inStore.remove();
+        driveThrough.remove();
+
         display.displayMessage(
             "The next order is completed. The customer has left.");
         displayOrdersAndPositions();
