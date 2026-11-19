@@ -27,6 +27,11 @@ public class FoodItem
      */
     public FoodItem(String n, String t, double p, int q)
     {
+        if (n == null || t == null || n.trim().equals("") || t.trim().equals("")
+            || p < 0 || q <= 0)
+        {
+            throw new IllegalArgumentException();
+        }
         name = n;
         type = t;
         price = p;
@@ -44,6 +49,11 @@ public class FoodItem
      */
     public FoodItem(String n, String t, double p)
     {
+        if (n == null || t == null || n.trim().equals("") || t.trim().equals("")
+            || p < 0)
+        {
+            throw new IllegalArgumentException();
+        }
         name = n;
         type = t;
         price = p;
@@ -112,6 +122,9 @@ public class FoodItem
      */
     public void decrementQuantity()
     {
+        if (quantity <= 0) {
+            throw new IllegalStateException();
+        }
         quantity--;
     }
 
@@ -123,6 +136,10 @@ public class FoodItem
      */
     public void addQuantity(int q)
     {
+        if (q <= 0)
+        {
+            throw new IllegalArgumentException();
+        }
         quantity += q;
     }
 }
