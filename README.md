@@ -5,7 +5,7 @@
 #### How did your design absorb the change?
 - Our 1 non-trivial feature is a automated line of customers that are ready to order. Additionally, we added checks for invalid values, negative stock, duplicate menu items, and duplicate car numbers.
 #### Did the change cross the model/view line? 
-- 
+- No, the change did not cross the model/view line. The view class only knows the data that the model class shares, and the view does not know what changes were made to the data or why, it only knows the current set of data. 
 #### What changed from your D3 plan?
 - We added a string field to orders that flags whether it's an order from drive through or in store. Additionally, we changed update methods, car numbers are now ordered, and implemented a drive through and restaurant display. 
 #### What doesn't work yet? 
