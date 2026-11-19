@@ -97,6 +97,7 @@ public class Display
      */
     public void displayMenu()
     {
+        System.out.println("\n");
         System.out.println("=== Menu ===");
 
         List<FoodItem> items = menu.getMenu();
@@ -125,6 +126,7 @@ public class Display
      */
     public void displayOrderList()
     {
+        System.out.println("\n");
         System.out.println("=== Order Queue ===");
 
         List<Order> orders = orderList.getOrders();
@@ -161,6 +163,7 @@ public class Display
      */
     public void displayDriveThrough()
     {
+        System.out.println("\n");
         List<DriveThroughCustomer> cars = driveThrough.getCustomers();
 
         System.out.println("=== Drive-Through (" + cars.size() + "/"
@@ -233,6 +236,7 @@ public class Display
      */
     public void displayInStore()
     {
+        System.out.println("\n");
         List<Customer> customers = inStore.getCustomers();
 
         System.out.println(
@@ -304,6 +308,7 @@ public class Display
      */
     public void displayInventory()
     {
+        System.out.println("\n");
         System.out.println("=== Inventory ===");
 
         List<FoodItem> items = menu.getMenu();
@@ -339,6 +344,7 @@ public class Display
      */
     public void displayMessage(String message)
     {
+        System.out.println("\n");
         if (message == null)
         {
             throw new IllegalArgumentException("Message cannot be null.");
@@ -388,11 +394,17 @@ public class Display
     {
         if (refreshNeeded)
         {
+            System.out.println("\n");
             displayMenu();
+            System.out.println("\n");
             displayOrderList();
+            System.out.println("\n");
             displayDriveThrough();
+            System.out.println("\n");
             displayInStore();
+            System.out.println("\n");
             displayInventory();
+            System.out.println("\n");
 
             refreshNeeded = false;
         }
