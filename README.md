@@ -3,17 +3,27 @@
 ## Reflection
 ### Deliverable 4:
 #### How did your design absorb the change?
+- Our 1 non-trivial feature is a automated line of customers that are ready to order. Additionally, we added checks for invalid values, negative stock, duplicate menu items, and duplicate car numbers.
 #### Did the change cross the model/view line? 
+- 
 #### What changed from your D3 plan?
+- We added a string field to orders that flags whether it's an order from drive through or in store. Additionally, we changed update methods, car numbers are now ordered, and implemented a drive through and restaurant display. 
 #### What doesn't work yet? 
+- Some of our test cases are failing.
 ---
 ## Next Steps
 ### Deliverable 4:
 #### What is left for the final build? 
+- To refine a engaging and appealing drive through and restruant display.
 #### Which stretch goals are you committing to, and which are you dropping?
+- To implement priority queue sorting, cancellation adapt menu switching based on dynamic time of day.
 #### What will your 3-minute demo show? 
+- Our 3 minute demo will show
 #### Who does what?
-
+- Preeti will
+- Houyue will
+- Adam will
+- Ayaan will 
 ---
 ## Attribution 
 | File / Class | Team Member(s) | Contribution / Role |
