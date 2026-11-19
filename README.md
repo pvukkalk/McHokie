@@ -10,6 +10,7 @@
 - We added a string field to orders that flags whether it's an order from drive through or in store. Additionally, we changed update methods, car numbers are now ordered, and implemented a drive through and restaurant display. 
 #### What doesn't work yet? 
 - Some of our test cases are failing.
+- Writing JUNit tests for the model separately from the console input and output.
 ---
 ## Next Steps
 ### Deliverable 4:
