@@ -127,6 +127,10 @@ public class HandleInput
                 {
                     displayOrdersAndPositions();
                 }
+                else if (userInput.equalsIgnoreCase("2a"))
+                {
+                    chooseCustomerType();
+                }
                 else if (userInput.equalsIgnoreCase("2b"))
                 {
                     completeNextOrder();
