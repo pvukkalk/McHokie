@@ -236,7 +236,9 @@ public class Display
      */
     public void displayInStore()
     {
+
         System.out.println("\n");
+
         List<Customer> customers = inStore.getCustomers();
 
         System.out.println(
@@ -308,7 +310,9 @@ public class Display
      */
     public void displayInventory()
     {
+
         System.out.println("\n");
+
         System.out.println("=== Inventory ===");
 
         List<FoodItem> items = menu.getMenu();
@@ -394,7 +398,9 @@ public class Display
     {
         if (refreshNeeded)
         {
+
             System.out.println("\n");
+
             displayMenu();
             System.out.println("\n");
             displayOrderList();
