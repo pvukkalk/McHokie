@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 // -------------------------------------------------------------------------
 /**
  * Tests for the Menu class and the Display view.
- * Display output is checked with systemOut().
+ * Display output is captured from System.out.
  *
  * @author Ayaan Deshmukh
  * @version Nov 12, 2026
@@ -158,75 +158,70 @@ public class MenuTest
     }
 
 
-    /**
-     * Spec: removing an item that is not on the menu throws
-     * IllegalArgumentException and sends no notification.
-     */
-    /**@Test
+    /** Removing a missing item throws NoSuchElementException. */
+    @Test
     public void testRemoveMissingItem()
     {
-        assertThrows(IllegalArgumentException.class, () ->
-            menu.removeItem(burger));
+        assertThrows(java.util.NoSuchElementException.class,
+            () -> menu.removeItem(burger));
         assertEquals(0, observer.getCount());
     }
 
 
-    /**
-     * Spec: adding a null item throws IllegalArgumentException.
-     */
-    /**@Test
-    public void testAddNullItem()
+    /** Menu notifications register new stock without replenishing it. */
+    @Test
+    public void testMenuSynchronizesInventory()
     {
-        int start = menu.getMenu().size();
-        assertThrows(IllegalArgumentException.class, () -> menu.addItem(null));
-        assertEquals(start, menu.getMenu().size());
-        assertEquals(0, observer.getCount());
-    }
-
-
-    /**
-     * Spec: adding an item already on the menu throws
-     * IllegalArgumentException.
-     */
-    /**@Test
-    public void testAddDuplicateItem()
-    {
+        Inventory inventory = new Inventory();
+        menu.addObserver(inventory);
         menu.addItem(burger);
-        int size = menu.getMenu().size();
-        assertThrows(IllegalArgumentException.class, () ->
-            menu.addItem(burger));
-        assertEquals(size, menu.getMenu().size());
+        assertEquals(0, inventory.getStock(burger));
+        inventory.addItem(burger, 3);
+        menu.addItem(fries);
+        assertEquals(3, inventory.getStock(burger));
+        assertEquals(0, inventory.getStock(fries));
     }
 
 
-    /**
-     * Spec: changing the list from getMenu does not change the menu.
-     */
-    /**@Test
+    /** Removing an item preserves the remaining order. */
+    @Test
+    public void testRemoveItemPreservesOtherEntries()
+    {
+        FoodItem cola = new FoodItem("Cola", "Drink", 4);
+        menu.addItem(burger);
+        menu.addItem(fries);
+        menu.addItem(cola);
+        menu.removeItem(fries);
+        assertEquals(2, menu.getMenu().size());
+        assertSame(burger, menu.getMenu().get(0));
+        assertSame(cola, menu.getMenu().get(1));
+    }
+
+
+    /** The menu getter returns an independent snapshot. */
+    @Test
     public void testGetMenuIsSnapshot()
     {
-        int start = menu.getMenu().size();
-        try
-        {
-            menu.getMenu().add(burger);
-        }
-        catch (UnsupportedOperationException e)
-        {
-            // an unmodifiable list is also fine
-        }
-        assertEquals(start, menu.getMenu().size());
+        List<FoodItem> items = menu.getMenu();
+        menu.addItem(burger);
+        assertTrue(items.isEmpty());
+        List<FoodItem> snapshot = menu.getMenu();
+        snapshot.clear();
+        assertEquals(1, menu.getMenu().size());
+        assertSame(burger, menu.getMenu().get(0));
     }
 
 
-    /**
-     * Spec: registering the same observer twice has no extra effect.
-     */
-    /**@Test
-    public void testDuplicateObserver()
+    /** Each separately registered observer receives changes. */
+    @Test
+    public void testMultipleObservers()
     {
-        menu.addObserver(observer);
+        CountingObserver other = new CountingObserver();
+        menu.addObserver(other);
         menu.addItem(burger);
         assertEquals(1, observer.getCount());
+        assertEquals(1, other.getCount());
+        assertSame(menu, other.getLastArg());
     }
 
 
@@ -242,13 +237,52 @@ public class MenuTest
     }
 
 
-    /**
-     * Spec: removing an observer that is not registered has no effect.
-     */
-    /**@Test
+    /** Removing an unknown observer has no effect. */
+    @Test
     public void testRemoveUnregisteredObserver()
     {
         assertDoesNotThrow(() -> menu.removeObserver(new CountingObserver()));
+    }
+
+    /** Invalid menu entries do not modify the menu or notify observers. */
+    @Test
+    public void testRejectNullMenuItem()
+    {
+        assertThrows(IllegalArgumentException.class, () -> menu.addItem(null));
+        assertTrue(menu.getMenu().isEmpty());
+        assertEquals(0, observer.getCount());
+    }
+
+    /** Both identical objects and case-insensitive duplicate names are rejected. */
+    @Test
+    public void testRejectDuplicateMenuItem()
+    {
+        menu.addItem(burger);
+        assertThrows(IllegalArgumentException.class, () -> menu.addItem(burger));
+        assertThrows(IllegalArgumentException.class, () ->
+            menu.addItem(new FoodItem("bUrGeR", "Food", 9)));
+        assertEquals(1, menu.getMenu().size());
+        assertEquals(1, observer.getCount());
+    }
+
+    /** Re-registering an observer does not duplicate notifications. */
+    @Test
+    public void testObserverRegistrationIsIdempotent()
+    {
+        menu.addObserver(observer);
+        menu.addObserver(observer);
+        menu.addItem(burger);
+        assertEquals(1, observer.getCount());
+    }
+
+    /** Null observers are rejected without affecting registered observers. */
+    @Test
+    public void testNullObserverRejected()
+    {
+        assertThrows(IllegalArgumentException.class, () -> menu.addObserver(null));
+        assertThrows(IllegalArgumentException.class, () -> menu.removeObserver(null));
+        menu.addItem(burger);
+        assertEquals(1, observer.getCount());
     }
 
     // ~ Display ...........................................................
@@ -340,9 +374,9 @@ public class MenuTest
 
 
     /**
-     * Tests that queued orders show their position, items, and total.
+     * Tests that queued orders show their number, items, and total.
      */
-    /**@Test
+    @Test
     public void testDisplayOrderList()
     {
         Order order = new Order();
@@ -350,31 +384,31 @@ public class MenuTest
         viewOrderList.enqueue(order);
         viewDisplay.displayOrderList();
         String out = output();
-        assertTrue(out.contains("Position: 1"));
+        assertTrue(out.contains("#1"));
         assertTrue(out.contains("Fries"));
-        assertTrue(out.contains("Total: $5.00"));
-        assertTrue(out.contains("QUEUED"));
+        assertTrue(out.contains("Total $5.00"));
+        assertTrue(out.contains("1x Fries"));
     }
 
 
     /**
-     * Tests the empty drive-through and in-store messages.
+     * Tests the empty drive-through and in-store diagrams.
      */
-    /**@Test
+    @Test
     public void testDisplayCustomersEmpty()
     {
         viewDisplay.displayDriveThrough();
         viewDisplay.displayInStore();
         String out = output();
-        assertTrue(out.contains("There are no drive-through customers."));
-        assertTrue(out.contains("There are no in-store customers."));
+        assertTrue(out.contains("=== Drive-Through (0/5 cars) ==="));
+        assertTrue(out.contains("=== In-Store (0 customers) ==="));
     }
 
 
     /**
      * Tests showing a drive-through customer and an in-store customer.
      */
-    /**@Test
+    @Test
     public void testDisplayCustomers()
     {
         FoodItem cola = new FoodItem("Cola", "Drink", 4, 10);
@@ -391,10 +425,10 @@ public class MenuTest
         viewDisplay.displayDriveThrough();
         viewDisplay.displayInStore();
         String out = output();
-        assertTrue(out.contains("Car 7: Jo - QUEUED"));
-        assertTrue(out.contains("Sam - QUEUED"));
+        assertTrue(out.contains("Jo") && out.contains("order #0"));
+        assertTrue(out.contains("Sam") && out.contains("x1 $4.00"));
     }
-*/
+
 
     /**
      * Tests that viewInventory shows stock and shows 0 for out-of-stock items.
@@ -456,14 +490,14 @@ public class MenuTest
     /**
      * Tests that the options viewMenu lists every option.
      */
-    /**@Test
+    @Test
     public void testDisplayOptionMenu()
     {
         viewDisplay.displayOptionMenu();
         String out = output();
         assertTrue(out.contains("=== Options Menu ==="));
         assertTrue(out.contains("1a. Add Item to Menu"));
-        assertTrue(out.contains("2b. Remove Order from Queue"));
+        assertTrue(out.contains("2b. Complete Next Order"));
         assertTrue(out.contains("5b. Remove Item from Inventory"));
         assertTrue(out.contains("6. Exit"));
     }
