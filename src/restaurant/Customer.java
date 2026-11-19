@@ -12,7 +12,7 @@ package restaurant;
 
 public class Customer {
 
-    private final String customerName;
+    private String customerName;
     private Order customerOrder;
 
     /**
@@ -32,6 +32,13 @@ public class Customer {
     }
     
     public void setOrder(Order order) {
+        if (order == null) {
+            throw new IllegalArgumentException("Order cannot be null.");
+        }
+        if (customerOrder.getStatus() != OrderStatus.DRAFT) {
+            throw new IllegalStateException(
+                "Order cannot be replaced after submission.");
+        }
         customerOrder = order;
     }
 
@@ -42,6 +49,15 @@ public class Customer {
      */
     public String getName() {
         return customerName;
+    }
+    
+    public void setName(String name)
+    {
+        if (name == null || name.isBlank())
+            throw new IllegalArgumentException("Customer name cannot be blank.");
+        if (getStatus() != OrderStatus.DRAFT)
+            throw new IllegalStateException("Name cannot change after ordering.");
+        customerName = name;
     }
 
     /**
