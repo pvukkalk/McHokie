@@ -8,8 +8,8 @@ import java.util.Scanner;
  *
  * @author adambergmaier
  * @version Nov 10, 2026
- * @author Houyue Chenprivate void completeNextOrder()
- * @version Nov 12, 2026
+ * @author Houyue Chen
+ * @version Nov 19, 2026
  */
 public class HandleInput
 {
