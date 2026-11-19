@@ -15,7 +15,10 @@ import java.util.List;
  * @version Nov 12, 2026
  */
 public class Order {
-
+    
+    private int orderNumber = 0;
+    private String customerName = "";
+    private String customerType = "";
     private ArrayList<FoodItem> orderedItems;
     private OrderStatus status;
 
@@ -85,7 +88,31 @@ public class Order {
 
         return total;
     }
+    
+    protected void setNumber(int number) {
+        orderNumber = number;
+    }
 
+    public int getNumber() {
+        return orderNumber;
+    }
+
+    protected void setCustomerName(String name) {
+        customerName = name;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+    
+    protected void setType(String type) {
+        customerType = type;
+    }
+
+    public String getType() {
+        return customerType;
+    }
+    
     /**
      * Returns the current order status.
      *

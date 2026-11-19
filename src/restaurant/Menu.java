@@ -1,6 +1,7 @@
 package restaurant;
 
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 // -------------------------------------------------------------------------
 /**
@@ -9,9 +10,6 @@ import java.util.ArrayList;
  * 
  * @author adambergmaier
  * @version Nov 10, 2026
- * @author Alex Chen
- * @version Nov 19, 2026
-
  */
 public class Menu
     implements Observable
@@ -37,7 +35,7 @@ public class Menu
      */
     public ArrayList<FoodItem> getMenu()
     {
-        return new ArrayList<FoodItem>(menu);
+        return menu;
     }
 
 
@@ -48,21 +46,6 @@ public class Menu
      */
     public void addItem(FoodItem item)
     {
-        if (item == null)
-        {
-            throw new IllegalArgumentException(
-                "Menu item cannot be null.");
-        }
-
-        for (FoodItem existing : menu)
-        {
-            if (existing.getName().equalsIgnoreCase(item.getName()))
-            {
-                throw new IllegalArgumentException(
-                    "An item with that name is already on the menu.");
-            }
-        }
-
         menu.add(item);
         notifyObservers();
     }
@@ -71,21 +54,19 @@ public class Menu
     /**
      * @param item
      *            FoodItem object to be removed from the menu arrayList, calls
-     *            the IllegalArgumentException method. throws NoSuchElementException when
+     *            the notifyObserver method. throws NoSuchElementException when
      *            the item is not in the arrayList
      */
     public void removeItem(FoodItem item)
     {
-        if (item == null || !menu.contains(item))
+        if (!menu.contains(item))
         {
-            throw new IllegalArgumentException(
-                "Item is not on the menu.");
+            throw new NoSuchElementException("Element does not exist");
         }
-
         menu.remove(item);
         notifyObservers();
     }
-    
+
 
     /**
      * @private method so the only the menu class can call the notifyObserver
@@ -109,33 +90,22 @@ public class Menu
     @Override
     public void addObserver(Observer o)
     {
-        if (o == null)
-        {
-            throw new IllegalArgumentException(
-                "Observer cannot be null.");
-        }
-
-        if (!observers.contains(o))
-        {
-            observers.add(o);
-        }
+        observers.add(o);
     }
 
 
     /**
-     * @param o Observer object to be removed from the observers arrayList
-     *             Throws IllegalArgumentException if the observer is not in the
+     * @pararm o Observer object to be removed from the observers arrayList
+     *             Throws NoSuchElementException if the observer is not in the
      *             arrayList
      */
     @Override
     public void removeObserver(Observer o)
     {
-        if (o == null)
+        if (!observers.contains(o))
         {
-            throw new IllegalArgumentException(
-                "Observer cannot be null.");
+            throw new NoSuchElementException("Element does not exist");
         }
-
         observers.remove(o);
     }
 }
