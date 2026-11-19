@@ -16,9 +16,9 @@
 #### What is left for the final build? 
 - To refine a engaging and appealing drive through and restruant display.
 #### Which stretch goals are you committing to, and which are you dropping?
-- To implement priority queue sorting, cancellation adapt menu switching based on dynamic time of day.
+- We are committing to cancellation adapt menu switching based on dynamic time of day.
 #### What will your 3-minute demo show? 
-- Our 3 minute demo will show
+- Our 3 minute demo will show the system that McHokie uses to take orders, keep track of orders and complete them from both a drive through and in-store line of customers. We will show how queue logic is integrated in our system. 
 #### Who does what?
 - Preeti will
 - Houyue will
